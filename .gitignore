@@ -1,0 +1,5 @@
+.idea
+.env
+*.iml
+src/media
+__pycache__
