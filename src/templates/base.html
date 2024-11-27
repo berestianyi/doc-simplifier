@@ -1,25 +1,64 @@
+{% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" id="htmlPage">
 <head>
     <meta charset="UTF-8">
     {% block title %}
-        <title>Title</title>
+        <title>Home page</title>
     {% endblock %}
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+    <script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"></script>
 </head>
-<body>
-    <header>
+<body style="min-height: 75rem; padding-top: 4.5rem;">
+<nav class="navbar navbar-expand-md navbar fixed-top bg-body">
+    <div class="container-fluid">
+        <a class="navbar-brand d-flex align-items-center" href="#">
+            <span class="mb-2 me-1">{% include "tools/icons/document.html" %}</span>
+            {#                <p class="mb-0">Doc Simplifier</p>#}
+        </a>
+        <button class="navbar-toggler collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false"
+                aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="navbar-collapse collapse" id="navbarCollapse" style="">
+            <ul class="navbar-nav me-auto mb-2 mb-md-0">
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="#">База данних</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Документи</a>
+                </li>
+            </ul>
+            <div class="d-flex flex-row">
+                <form class="d-flex" role="search">
+                    <input class="form-control me-2" type="search" placeholder="Пошук по ЄДРПОУ" aria-label="Search">
+                    <button class="btn btn-outline-success" type="submit">Пошук</button>
+                </form>
+                <button type="button" id="toggleColorModeButton" class="btn btn-outline-warning ms-4 me-2">
+                    <span id="sunIcon">{% include 'tools/icons/sun.html' %}</span>
+                    <span id="moonIcon" style="display: none;">{% include 'tools/icons/moon.html' %}</span>
+                </button>
+            </div>
 
-    </header>
-    <nav>
+        </div>
+    </div>
+</nav>
+<main class="container">
+    {% block body %}
 
-    </nav>
-    <main>
-        {% block body %}
-
-        {% endblock %}
-    </main>
-    <footer>
-
-    </footer>
+    {% endblock %}
+</main>
+<footer class="py-3 my-4 footer fixed-bottom">
+    <ul class="nav justify-content-center border-bottom pb-3 mb-3">
+        <li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary">Home</a></li>
+        <li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary">Features</a></li>
+        <li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary">Pricing</a></li>
+        <li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary">FAQs</a></li>
+        <li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary">About</a></li>
+    </ul>
+    <p class="text-center text-body-secondary">© 2024 Company, Inc</p>
+</footer>
+<script src="{% static 'js/colormode.js' %}"></script>
 </body>
 </html>
