@@ -34,3 +34,15 @@ class BusinessEntities(models.Model):
 
     def __str__(self):
         return f"BusinessEntity: {self.short_name}"
+
+    def save(self, *args, **kwargs):
+
+        if self.business_entity == BusinessEntities.BusinessEntitiesEnum.FOP:
+            self.short_name = f"ФОП {self.short_name}"
+            self.full_name = f"Фізична особа-підприємець {self.full_name}"
+
+        if self.business_entity == BusinessEntities.BusinessEntitiesEnum.TOV:
+            self.short_name = f"ТОВ «{self.short_name}»"
+            self.full_name = f"Товариство з обмеженою відповідальністю «{self.full_name}»"
+
+        super().save(*args, **kwargs)
