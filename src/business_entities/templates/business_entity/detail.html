@@ -7,14 +7,14 @@
 {% block body %}
     <div class="d-flex flex-row flex-wrap ">
         <div class="d-flex flex-fill flex-column px-4" style="min-width: 300px;">
-            <h4>ТОВ «РОЛАНД-ТРАНС»</h4>
+            <h3>{{ business_entity.short_name }}</h3>
             <ul class="list-group list-group-flush mb-4">
-                <li class="list-group-item"><span class="fw-bold">ЄДРПОУ:  </span>78234983</li>
-                <li class="list-group-item"><span class="fw-bold">Назва:  </span>РОЛАНД-ТРАНС</li>
-                <li class="list-group-item"><span class="fw-bold">Імʼя:  </span>Іван Іванов Іванович</li>
-                <li class="list-group-item"><span class="fw-bold">Email:  </span> sdvkjbksjdvb@gmail.com</li>
-                <li class="list-group-item"><span class="fw-bold">Телефон:  </span>0990191957 +3809923423423</li>
-                <li class="list-group-item"><span class="fw-bold">IBAN:  </span>UA903052992990004149123456789</li>
+                <li class="list-group-item"><span class="fw-bold">ЄДРПОУ:  </span>{{ business_entity.edrpou }}</li>
+                <li class="list-group-item"><span class="fw-bold">Назва:  </span>{{ business_entity.company_name }}</li>
+                <li class="list-group-item"><span class="fw-bold">Імʼя:  </span>{{ business_entity.director_name }}</li>
+                <li class="list-group-item"><span class="fw-bold">Email:  </span>{{business_entity.email}}</li>
+                <li class="list-group-item"><span class="fw-bold">Телефон:  </span>{{ business_entity.phone}}</li>
+                <li class="list-group-item"><span class="fw-bold">IBAN:  </span>{{ business_entity.iban }}</li>
             </ul>
             <h4>Банк</h4>
             <ul class="list-group list-group-flush mb-4">
