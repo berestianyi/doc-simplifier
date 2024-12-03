@@ -1,57 +1,44 @@
-from django.shortcuts import render, redirect
+from django.urls import reverse_lazy
+from django.views.generic import TemplateView, ListView, DetailView, FormView, CreateView
 
 from business_entities.forms import BusinessEntitiesForm
 from business_entities.models import BusinessEntities
 
 
-def home_page(request):
-    return render(request, 'base.html')
+class HomePageView(TemplateView):
+    template_name = 'base.html'
 
 
-def business_entities(request):
-    return render(request, 'business_entity/list.html')
+class BusinessEntitiesListView(ListView):
+    model = BusinessEntities
+    template_name = 'business_entity/list.html'
+    context_object_name = 'business_entities'
+    paginate_by = 10
 
 
-def business_entity(request):
-    return render(request, 'business_entity/page.html')
+class BusinessEntityDetailView(DetailView):
+    model = BusinessEntities
+    template_name = 'business_entity/detail.html'
+    context_object_name = 'business_entity'
+    pk_url_kwarg = 'entity_id'
 
 
-def create_business_entity(request):
-    if request.method == 'POST':
-        data = request.POST
+class CreateBusinessEntityView(CreateView):
+    model = BusinessEntities
+    form_class = BusinessEntitiesForm
+    template_name = 'business_entity/create.html'
+    success_url = reverse_lazy('business_entities')
+
+    def form_valid(self, form):
+        data = form.cleaned_data
         edrpou = data.get('edrpou', '').strip()
-        form = BusinessEntitiesForm(request.POST, request.FILES)
-        if form.is_valid():
-            if len(edrpou) == 8:
-                business_entity_type = BusinessEntities.BusinessEntitiesEnum.FOP
-                short_name = full_name = director_name = data.get('fop_name', '')
-            elif len(edrpou) == 10:
-                business_entity_type = BusinessEntities.BusinessEntitiesEnum.TOV
-                short_name = full_name = data.get('company_name', '')
-                director_name = data.get('director_name', '')
-            else:
-                return render(request, 'business_entity/create.html', {'error': 'Неправильний код ЕДРПОУ'})
 
-            business_entity_instance = BusinessEntities(
-                business_entity=business_entity_type,
-                edrpou=edrpou,
-                short_name=short_name,
-                full_name=full_name,
-                director_name=director_name,
-                address=data.get('address', ''),
-                email=data.get('email', ''),
-                phone=data.get('phone', ''),
-                iban=data.get('iban', ''),
-            )
+        if len(edrpou) == 8:
+            form.instance.business_entity = BusinessEntities.BusinessEntitiesEnum.FOP
+        elif len(edrpou) == 10:
+            form.instance.business_entity = BusinessEntities.BusinessEntitiesEnum.TOV
+        else:
+            form.add_error('edrpou', 'Неправильний код ЕДРПОУ')
+            return self.form_invalid(form)
 
-            business_entity_instance.save()
-            return redirect('business_entities')
-    else:
-        form = BusinessEntitiesForm()
-
-    return render(
-        request,
-        'business_entity/create.html',
-        {'form': form}
-    )
-
+        return super().form_valid(form)
