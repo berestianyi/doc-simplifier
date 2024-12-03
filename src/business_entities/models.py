@@ -22,9 +22,8 @@ class BusinessEntities(models.Model):
         default=BusinessEntitiesEnum.FOP
     )
     edrpou = models.CharField(_("Code EDRPOU"), max_length=10, blank=True, unique=True, null=True)
-    short_name = models.CharField(_("Short Name"), max_length=200, blank=True, null=True)
-    full_name = models.CharField(_("Full Name"), max_length=200, blank=True, null=True)
-    director_name = models.CharField(_("Director Name"), max_length=200, blank=True, null=True)
+    company_name = models.CharField(_("Company Name"), max_length=300, blank=True, null=True)
+    director_name = models.CharField(_("Director Name"), max_length=300, blank=True, null=True)
     address = models.CharField(_("Address"), max_length=200, blank=True, null=True)
     email = models.EmailField(_("Email"), blank=True, null=True)
     phone = models.CharField(_("Phone"), max_length=200, blank=True, null=True)
@@ -33,16 +32,11 @@ class BusinessEntities(models.Model):
     bank = models.ForeignKey('Bank', on_delete=models.CASCADE, blank=True, null=True, related_name="business_entities")
 
     def __str__(self):
-        return f"BusinessEntity: {self.short_name}"
+        return f"BusinessEntity: {self.director_name}"
 
     def save(self, *args, **kwargs):
 
         if self.business_entity == BusinessEntities.BusinessEntitiesEnum.FOP:
-            self.short_name = f"ФОП {self.short_name}"
-            self.full_name = f"Фізична особа-підприємець {self.full_name}"
-
-        if self.business_entity == BusinessEntities.BusinessEntitiesEnum.TOV:
-            self.short_name = f"ТОВ «{self.short_name}»"
-            self.full_name = f"Товариство з обмеженою відповідальністю «{self.full_name}»"
+            self.company_name = self.director_name
 
         super().save(*args, **kwargs)
