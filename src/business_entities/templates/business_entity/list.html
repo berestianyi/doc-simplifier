@@ -1,4 +1,6 @@
 {% extends 'templates/base.html' %}
+{% load business_entity_filters %}
+
 {% block title %}
     <title>Home page</title>
 {% endblock %}
@@ -6,43 +8,52 @@
 {% block body %}
     <div class="d-flex flex-column">
         <div class="d-flex flex-fill justify-content-center m-4">
-            <a type="button" class="btn btn-outline-success fw-bold" href="{% url 'create_business_entity' %}">Додати Суб'єкт господарювання</a>
+            <a type="button" class="btn btn-outline-success fw-bold" href="{% url 'create_business_entity' %}">Додати
+                Суб'єкт господарювання</a>
         </div>
-        <div class="d-flex flex-fill justify-content-center">
+        <div class="d-flex flex-column flex-fill align-items-center">
             <table class="table">
                 <thead>
                 <tr>
                     <th scope="col">#</th>
                     <th scope="col">ЄДРПОУ</th>
-                    <th scope="col">СГ</th>
                     <th scope="col">Назва</th>
                     <th scope="col">Телефон</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr>
-                    <th scope="row">1</th>
-                    <td>2983745243</td>
-                    <td>ТОВ</td>
-                    <td>РОЛАНД</td>
-                    <td>+38012478234</td>
-                </tr>
-                <tr>
-                    <th scope="row">2</th>
-                    <td>982348233</td>
-                    <td>ФОП</td>
-                    <td>Антон антонович</td>
-                    <td>+38062478234 0234234234</td>
-                </tr>
-                <tr>
-                    <th scope="row">3</th>
-                    <td>342348239</td>
-                    <td>ФОП</td>
-                    <td>Микита Дмитрович</td>
-                    <td>045678234</td>
-                </tr>
+                {% for entity in business_entities %}
+                    <tr>
+                        <th scope="row"><a class="text-decoration-none text-reset" href="{% url 'business_entity_detail' entity_id=entity.id %}">{{ forloop.counter }}</a></th>
+                        <td><a class="text-decoration-none text-reset" href="{% url 'business_entity_detail' entity_id=entity.id %}">{{ entity.edrpou }}</a></td>
+                        <td><a class="text-decoration-none text-reset" href="{% url 'business_entity_detail' entity_id=entity.id %}">{{ entity.company_name|make_short_name:entity.edrpou }}</a></td>
+                        <td><a class="text-decoration-none text-reset" href="{% url 'business_entity_detail' entity_id=entity.id %}">{{ entity.phone }}</a></td>
+                    </tr>
+                {% endfor %}
                 </tbody>
             </table>
+            {% if is_paginated %}
+                <div class="btn-group" role="group" aria-label="Pagination">
+                    {% if page_obj.has_previous %}
+                        <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-outline-primary">&laquo;</a>
+                    {% endif %}
+
+                    {% for page in paginator.page_range %}
+                        {% if page > page_obj.number|add:'-3' and page < page_obj.number|add:'3' %}
+                            {% if page == page_obj.number %}
+                                <a href="?page={{ page }}" class="btn btn-outline-primary active"
+                                   aria-current="page">{{ page }}</a>
+                            {% else %}
+                                <a href="?page={{ page }}" class="btn btn-outline-primary">{{ page }}</a>
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}" class="btn btn-outline-primary">&raquo;</a>
+                    {% endif %}
+                </div>
+            {% endif %}
         </div>
     </div>
 {% endblock %}
