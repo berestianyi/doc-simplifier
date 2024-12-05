@@ -12,7 +12,7 @@ def validate_edrpou(value):
         raise ValidationError(_("Цей код ЄДРПОУ вже існує."), code='invalid')
 
 
-class BusinessEntitiesForm(forms.ModelForm):
+class BusinessEntitiesCreateForm(forms.ModelForm):
     edrpou = forms.CharField(
         required=False,
         label='ЄДРПОУ',
@@ -28,6 +28,7 @@ class BusinessEntitiesForm(forms.ModelForm):
     class Meta:
         model = BusinessEntities
         fields = [
+            'business_entity',
             'edrpou',
             'director_name',
             'company_name',
@@ -37,7 +38,7 @@ class BusinessEntitiesForm(forms.ModelForm):
             'iban',
         ]
         labels = {
-            'director_name': 'Імʼя директора ТОВа (ПІБ)',
+            'director_name': 'Імʼя директора (ПІБ)',
             'company_name': 'Назва ТОВа',
             'address': 'Адреса',
             'phone': 'Телефон',
@@ -45,36 +46,35 @@ class BusinessEntitiesForm(forms.ModelForm):
             'iban': 'IBAN',
         }
         widgets = {
+            'business_entity': forms.RadioSelect(attrs={'class': 'btn-check'}),
             'director_name': forms.TextInput(attrs={
                 'placeholder': 'Іванов Іван Іванович',
-                'class': 'form-control',
             }),
             'company_name': forms.TextInput(attrs={
                 'placeholder': 'Google LLC',
-                'class': 'form-control',
             }),
             'address': forms.TextInput(attrs={
                 'placeholder': 'Україна, вул. Хрещатик, 1',
-                'class': 'form-control',
             }),
             'phone': forms.TextInput(attrs={
                 'placeholder': '+3809901234567',
-                'class': 'form-control',
             }),
             'email': forms.EmailInput(attrs={
                 'placeholder': 'example@gmail.com',
-                'class': 'form-control',
             }),
             'iban': forms.TextInput(attrs={
                 'placeholder': 'UAXXXXXXXXXXXXXXXXXXXXXXXXXXX',
-                'class': 'form-control',
             }),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Ensure all fields have 'form-control' class for Bootstrap styling
         for field_name, field in self.fields.items():
             if 'class' not in field.widget.attrs:
                 field.widget.attrs['class'] = 'form-control'
+
+
+class BusinessEntitiesUpdateForm(BusinessEntitiesCreateForm):
+    class Meta(BusinessEntitiesCreateForm.Meta):
+        pass
