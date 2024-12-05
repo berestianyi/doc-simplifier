@@ -1,0 +1,38 @@
+{% extends 'templates/base.html' %}
+{% load business_entity_filters %}
+
+{% block title %}
+    <title>СГ</title>
+{% endblock %}
+
+{% block body %}
+    <div class="d-flex flex-row flex-wrap ">
+        <div class="d-flex flex-fill flex-column px-4" style="min-width: 300px;">
+            <h3 id="test">{{ business_entity.company_name|make_short_name:business_entity.edrpou }}</h3>
+
+            <form class="d-flex flex-column flex-wrap" style="min-width: 400px" method="post" id="updateBusinessEntity">
+                {% include 'business_entity/forms/create.html' %}
+            </form>
+            <h4>Банк</h4>
+            <ul class="list-group list-group-flush mb-4">
+                <li class="list-group-item"><span class="fw-bold">Назва:  </span>ПуАТ «КБ «АКОРДБАНК»</li>
+                <li class="list-group-item"><span class="fw-bold">МФО:  </span>380634</li>
+            </ul>
+        </div>
+        <div class="d-flex flex-fill flex-column px-4" style="min-width: 300px;">
+            <h4>Транспортні засоби:</h4>
+            <ul class="list-group list-group-flush mb-4">
+                <li class="list-group-item">KA5512MK, Dodge Dart, 2013</li>
+                <li class="list-group-item">KA5512MK, Dodge Dart, 2013</li>
+                <li class="list-group-item">KA5512MK, Dodge Dart, 2013</li>
+                <li class="list-group-item">KA5512MK, Dodge Dart, 2013</li>
+            </ul>
+            <h4>Документи:</h4>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">РОЛАНД-ТРАНС АПТ</li>
+                <li class="list-group-item">РОЛАНД-ТРАНС АПТ РОЛАНД</li>
+
+            </ul>
+        </div>
+    </div>
+{% endblock %}
