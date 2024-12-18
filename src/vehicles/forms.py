@@ -1,3 +1,5 @@
+import re
+
 from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
@@ -10,13 +12,16 @@ def validate_vin_code(value):
             raise ValidationError(_('VIN-код повинен містити рівно 17 символів.'), code='invalid')
         if not value.isalnum():
             raise ValidationError(_('VIN-код повинен бути алфавітно-цифровим.'), code='invalid')
-        if Vehicles.objects.filter(vin_code=value).exists():
-            raise ValidationError(_("Цей VIN-код вже існує."), code='invalid')
 
 
 def validate_unique_vehicle_number(value):
-    if value and Vehicles.objects.filter(number=value).exists():
-        raise ValidationError(_("Цей номер транспортного засобу вже існує."), code='invalid')
+    if value:
+        pattern = r'^[A-Za-z0-9]+$'
+        if not re.match(pattern, value):
+            raise ValidationError(
+                _('Це поле повинно містити лише латинські літери та цифри.'),
+                code='invalid'
+            )
 
 
 class VehiclesCreateForm(forms.ModelForm):
@@ -27,17 +32,15 @@ class VehiclesCreateForm(forms.ModelForm):
         validators=[validate_vin_code],
         widget=forms.TextInput(attrs={
             'placeholder': 'Введіть VIN-код',
-            'class': 'form-control',
         })
     )
     number = forms.CharField(
         required=False,
-        label='Номер',
+        label='Номер ТЗ',
         max_length=100,
         validators=[validate_unique_vehicle_number],
         widget=forms.TextInput(attrs={
             'placeholder': 'Введіть номер транспортного засобу',
-            'class': 'form-control',
         })
     )
 
@@ -45,7 +48,7 @@ class VehiclesCreateForm(forms.ModelForm):
         model = Vehicles
         fields = [
             'vin_code',
-            'type',
+            'vehicle_type',
             'number',
             'brand',
             'model',
@@ -57,7 +60,7 @@ class VehiclesCreateForm(forms.ModelForm):
             'euro',
         ]
         labels = {
-            'type': 'Тип транспортного засобу',
+            'vehicle_type': 'Тип транспортного засобу',
             'brand': 'Марка',
             'model': 'Модель',
             'year': 'Рік випуску',
@@ -68,8 +71,8 @@ class VehiclesCreateForm(forms.ModelForm):
             'euro': 'Екологічний стандарт (Євро)',
         }
         widgets = {
-            'type': forms.TextInput(attrs={
-                'placeholder': 'Введіть тип транспортного засобу',
+            'vehicle_type': forms.Select(attrs={
+                'class': 'form-select'
             }),
             'brand': forms.TextInput(attrs={
                 'placeholder': 'Введіть марку',
@@ -92,8 +95,8 @@ class VehiclesCreateForm(forms.ModelForm):
             'number_of_seats': forms.TextInput(attrs={
                 'placeholder': 'Введіть кількість місць',
             }),
-            'euro': forms.TextInput(attrs={
-                'placeholder': 'Введіть екологічний стандарт (Євро)',
+            'euro': forms.Select(attrs={
+                'class': 'form-select'
             }),
         }
 
@@ -110,33 +113,42 @@ class VehiclesUpdateForm(VehiclesCreateForm):
         pass
 
 
+class VehiclesDetailForm(VehiclesCreateForm):
+    class Meta(VehiclesCreateForm.Meta):
+        pass
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        for field_name, field in self.fields.items():
+            field.widget.attrs['disabled'] = True
+
+
 class VehicleLicencesCreateForm(forms.ModelForm):
     class Meta:
         model = VehicleLicences
         fields = [
             'type',
             'serial',
-            'number',
+            'licence_number',
             'registration_date',
-            'expiration_date',
-            'vehicle',
-            'business_entities',
+            'expiration_date'
         ]
         labels = {
-            'type': 'Тип ліцензії',
+            'type': 'Вид технічного паспорту',
             'serial': 'Серія',
-            'number': 'Номер',
+            'licence_number': 'Номер',
             'registration_date': 'Дата реєстрації',
-            'expiration_date': 'Дата закінчення',
-            'vehicle': 'Транспортний засіб',
-            'business_entities': 'Юридичні особи',
+            'expiration_date': 'Дата закінчення'
         }
         widgets = {
-            'type': forms.RadioSelect(attrs={'class': 'btn-check'}),
+            'type': forms.Select(attrs={
+                'class': 'form-select'
+            }),
             'serial': forms.TextInput(attrs={
                 'placeholder': 'Введіть серію',
             }),
-            'number': forms.TextInput(attrs={
+            'licence_number': forms.TextInput(attrs={
                 'placeholder': 'Введіть номер ліцензії',
             }),
             'registration_date': forms.DateInput(attrs={
@@ -144,13 +156,7 @@ class VehicleLicencesCreateForm(forms.ModelForm):
             }),
             'expiration_date': forms.DateInput(attrs={
                 'type': 'date',
-            }),
-            'vehicle': forms.Select(attrs={
-                'class': 'form-control',
-            }),
-            'business_entities': forms.SelectMultiple(attrs={
-                'class': 'form-control',
-            }),
+            })
         }
 
     def __init__(self, *args, **kwargs):
@@ -164,3 +170,14 @@ class VehicleLicencesCreateForm(forms.ModelForm):
 class VehicleLicencesUpdateForm(VehicleLicencesCreateForm):
     class Meta(VehicleLicencesCreateForm.Meta):
         pass
+
+
+class VehicleLicencesDetailForm(VehicleLicencesCreateForm):
+    class Meta(VehicleLicencesCreateForm.Meta):
+        pass
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        for field_name, field in self.fields.items():
+            field.widget.attrs['disabled'] = True
