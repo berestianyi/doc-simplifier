@@ -1,0 +1,15 @@
+<form class="d-flex flex-column flex-wrap" id="vehicleAndLicenceDetailForms">
+    {% csrf_token %}
+    {% include 'vehicles/partials/form.html' %}
+    <div class="d-flex flex-row flex-wrap my-3">
+        <button
+                type="button"
+                class="btn btn-warning mx-3 my-1"
+                hx-post="{% url 'create_vehicle_and_licence_update_form' vehicle.id %}"
+                hx-target="#vehicleAndLicenceDetailForms"
+                hx-swap="outerHTML"
+                hx-trigger="click"
+        >Редагувати
+        </button>
+    </div>
+</form>
