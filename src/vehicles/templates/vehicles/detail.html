@@ -1,0 +1,16 @@
+{% extends 'templates/base.html' %}
+{% load static %}
+
+{% block title %}
+    <title>ТЗ</title>
+{% endblock %}
+
+{% block body %}
+    <div class="d-flex flex-column flex-wrap">
+        {% include 'vehicles/partials/detail_form.html' %}
+    </div>
+{% endblock %}
+
+{% block static %}
+
+{% endblock %}

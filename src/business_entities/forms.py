@@ -8,9 +8,6 @@ def validate_edrpou(value):
     if not value.isdigit():
         raise ValidationError(_('Це поле повинно містити лише цифри.'), code='invalid')
 
-    if BusinessEntities.objects.filter(edrpou=value).exists():
-        raise ValidationError(_("Цей код ЄДРПОУ вже існує."), code='invalid')
-
 
 class BusinessEntitiesCreateForm(forms.ModelForm):
     edrpou = forms.CharField(
@@ -21,7 +18,22 @@ class BusinessEntitiesCreateForm(forms.ModelForm):
         validators=[validate_edrpou],
         widget=forms.TextInput(attrs={
             'placeholder': '12345678',
-            'class': 'form-control',
+        })
+    )
+
+    address = forms.CharField(
+        label='Адреса',
+        widget=forms.Textarea(attrs={
+            'placeholder': 'Україна, вул. Хрещатик, 1',
+            'style': 'height: 40px; max-height: 120px;',
+        })
+    )
+
+    phone = forms.CharField(
+        label='Телефон',
+        widget=forms.Textarea(attrs={
+            'placeholder': '+3809901234567',
+            'style': 'height: 40px; max-height: 120px;',
         })
     )
 
@@ -38,10 +50,8 @@ class BusinessEntitiesCreateForm(forms.ModelForm):
             'iban',
         ]
         labels = {
-            'director_name': 'Імʼя директора (ПІБ)',
+            'director_name': 'ПІБ директора',
             'company_name': 'Назва ТОВа',
-            'address': 'Адреса',
-            'phone': 'Телефон',
             'email': 'Email',
             'iban': 'IBAN',
         }
@@ -52,12 +62,6 @@ class BusinessEntitiesCreateForm(forms.ModelForm):
             }),
             'company_name': forms.TextInput(attrs={
                 'placeholder': 'Google LLC',
-            }),
-            'address': forms.TextInput(attrs={
-                'placeholder': 'Україна, вул. Хрещатик, 1',
-            }),
-            'phone': forms.TextInput(attrs={
-                'placeholder': '+3809901234567',
             }),
             'email': forms.EmailInput(attrs={
                 'placeholder': 'example@gmail.com',

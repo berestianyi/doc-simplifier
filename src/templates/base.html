@@ -3,11 +3,13 @@
 <html lang="en" id="htmlPage">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     {% block title %}
         <title>Home page</title>
     {% endblock %}
     <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
     <script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'htmx/htmx.min.js' %}"></script>
 </head>
 <body>
 <div class="d-flex flex-column min-vh-100">
@@ -27,7 +29,7 @@
                         <a class="nav-link" href="{% url 'business_entities' %}">Суб'єкти господарювання</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Транспортні засоби</a>
+                        <a class="nav-link" href="{% url 'vehicles' %}">Транспортні засоби</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#">Документи</a>
