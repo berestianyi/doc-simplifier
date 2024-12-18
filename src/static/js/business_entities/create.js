@@ -5,24 +5,28 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const inputEdrpou = document.querySelector('div #id_edrpou');
     const directorName= document.querySelector('div #id_director_name').parentElement;
-    const companyName= document.getElementById('id_company_name_div')
+    const companyName= document.querySelector('div #id_company_name').parentElement;
+    const companyNameInput = document.getElementById('id_company_name');
+    const companyNameLabel = companyName.parentElement.querySelector('label');
     const labelDirectorName = directorName.parentElement.querySelector('label');
 
     function toggleForms() {
 
         if (tovChoice.checked) {
-            submitButton.textContent = 'Створити ТОВ'
-            inputEdrpou.setAttribute('minlength', '10')
-            inputEdrpou.setAttribute('maxlength', '10')
-            labelDirectorName.textContent = 'Імʼя директора (ПІБ)'
-            companyName.style.display = 'block';
+            submitButton.textContent = 'Створити ТОВ';
+            inputEdrpou.setAttribute('minlength', '10');
+            inputEdrpou.setAttribute('maxlength', '10');
+            labelDirectorName.textContent = 'ПІБ директора';
+            companyNameLabel.style.display = 'block';
+            companyNameInput.style.display = 'block';
         } else if (fopChoice.checked) {
             inputEdrpou.value = inputEdrpou.value.substring(0, 8);
             submitButton.textContent = 'Створити ФОП'
-            inputEdrpou.setAttribute('minlength', '8')
-            inputEdrpou.setAttribute('maxlength', '8')
-            labelDirectorName.textContent = 'Імʼя ФОПа (ПІБ)'
-            companyName.style.display = 'none';
+            inputEdrpou.setAttribute('minlength', '8');
+            inputEdrpou.setAttribute('maxlength', '8');
+            labelDirectorName.textContent = 'ПІБ ФОПа';
+            companyNameLabel.style.display = 'none';
+            companyNameInput.style.display = 'none';
         }
     }
 
