@@ -1,0 +1,41 @@
+<div class="d-flex flex-row flex-wrap">
+    <div class="d-flex flex-fill flex-column px-4"
+         style="min-width: 300px; max-width: 700px"
+    >
+        <h3 id="test">Транспортний засіб {{ vehicle.brand }} {{ vehicle.model }} {{ vehicle.number }}</h3>
+        <div class="d-flex flex-column flex-wrap" style="min-width: 350px">
+            {{ vehicle_form.non_field_errors }}
+            {% for field in vehicle_form %}
+                <div class="d-flex flex-row flex-wrap flex-fill mb-1" id="{{ field.id_for_label }}_div">
+                    <label for="{{ field.id_for_label }}" class="col-form-label me-2">{{ field.label }}</label>
+                    <div class="d-flex flex-fill" style="width: 350px">
+                        {{ field }}
+                    </div>
+                    {% if field.errors %}
+                        <div class="text-danger">
+                            {{ field.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="d-flex flex-column px-4" style="width: 350px;">
+        <div class="d-flex flex-column flex-wrap" style="min-width: 350px" id="vehicle-licence-form-container">
+            {{ licence_form.non_field_errors }}
+            {% for field in licence_form %}
+                <div class="d-flex flex-row flex-wrap flex-fill mb-1" id="{{ field.id_for_label }}_div">
+                    <label for="{{ field.id_for_label }}" class="col-form-label me-2">{{ field.label }}</label>
+                    <div class="d-flex flex-fill" style="width: 350px">
+                        {{ field }}
+                    </div>
+                    {% if field.errors %}
+                        <div class="text-danger">
+                            {{ field.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
