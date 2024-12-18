@@ -1,9 +1,17 @@
+from django.http import HttpResponse
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy, reverse
-from django.views.generic import TemplateView, ListView, DetailView, CreateView
-from django.views.generic.edit import FormMixin
+from django.views.generic import ListView, View
 
-from .forms import VehiclesCreateForm, VehiclesUpdateForm
-from vehicles.models import Vehicles
+from .forms import (
+    VehiclesCreateForm,
+    VehiclesUpdateForm,
+    VehicleLicencesUpdateForm,
+    VehiclesDetailForm,
+    VehicleLicencesDetailForm,
+    VehicleLicencesCreateForm
+)
+from vehicles.models import Vehicles, VehicleLicences
 
 
 class VehiclesListView(ListView):
@@ -13,38 +21,106 @@ class VehiclesListView(ListView):
     paginate_by = 10
 
 
-class VehicleDetailView(FormMixin, DetailView):
-    model = Vehicles
-    template_name = 'vehicles/detail.html'
-    context_object_name = 'vehicle'
-    pk_url_kwarg = 'vehicle_id'
-    form_class = VehiclesUpdateForm
+class CreateVehicleView(View):
+    template_name = 'vehicles/create.html'
 
-    def get_success_url(self):
-        return reverse('vehicle_detail', kwargs={'vehicle_id': self.object.id})
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['instance'] = self.get_object()
-        return kwargs
+    def get(self, request, *args, **kwargs):
+        vehicle_form = VehiclesCreateForm()
+        licence_form = VehicleLicencesCreateForm()
+        return render(
+            request,
+            self.template_name,
+            {
+                'vehicle_form': vehicle_form,
+                'licence_form': licence_form
+            }
+        )
 
     def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        form = self.get_form()
+        vehicle_form = VehiclesCreateForm(request.POST)
+        licence_form = VehicleLicencesCreateForm(request.POST)
 
-        if form.is_valid():
-            form.save()
-            return self.form_valid(form)
+        if vehicle_form.is_valid() and licence_form.is_valid():
+            vehicle = vehicle_form.save(commit=True)
+            licence = licence_form.save(commit=False)
+            licence.vehicle = vehicle
+            licence.save()
+
+            return redirect('vehicle_detail', vehicle_id=vehicle.id)
+
+        return render(
+            request,
+            self.template_name,
+            {
+                'vehicle_form': vehicle_form,
+                'licence_form': licence_form
+            }
+        )
+
+
+def get_vehicle_and_licence_objects(vehicle_id):
+    vehicle = get_object_or_404(Vehicles, id=vehicle_id)
+    licence = get_object_or_404(VehicleLicences, vehicle=vehicle)
+    return vehicle, licence
+
+
+def vehicles_detail(request, vehicle_id):
+    vehicle, licence = get_vehicle_and_licence_objects(vehicle_id)
+
+    context = {
+        'vehicle_form': VehiclesDetailForm(instance=vehicle),
+        'licence_form': VehicleLicencesDetailForm(instance=licence),
+        'vehicle': vehicle,
+        'licence': licence
+    }
+    return render(request, 'vehicles/detail.html', context)
+
+
+def create_vehicle_and_licence_update_form(request, vehicle_id):
+    vehicle, licence = get_vehicle_and_licence_objects(vehicle_id)
+    context = {
+        'vehicle_form': VehiclesUpdateForm(instance=vehicle),
+        'licence_form': VehicleLicencesUpdateForm(instance=licence),
+        'vehicle': vehicle,
+    }
+    return render(request, 'vehicles/partials/update_form.html', context)
+
+
+def submit_vehicle_and_licence_update_form(request, vehicle_id):
+    vehicle, licence = get_vehicle_and_licence_objects(vehicle_id)
+    licence_update_form = VehicleLicencesUpdateForm(request.POST or None, instance=licence)
+    vehicle_update_form = VehiclesUpdateForm(request.POST or None, instance=vehicle)
+
+    if request.method == 'POST':
+        if licence_update_form.is_valid() and vehicle_update_form.is_valid():
+            updated_licence = licence_update_form.save()
+            updated_vehicle = vehicle_update_form.save()
+
+            return render(request, 'vehicles/partials/detail_form.html', {
+                'licence_form': VehicleLicencesDetailForm(instance=updated_licence),
+                'vehicle_form': VehiclesDetailForm(instance=updated_vehicle),
+                'vehicle': vehicle,
+            })
         else:
-            return self.form_invalid(form)
+            return render(request, 'vehicles/partials/update_form.html', {
+                'licence_form': licence_update_form,
+                'vehicle_form': vehicle_update_form,
+                'vehicle': vehicle,
+            })
+
+    return render(request, 'vehicles/partials/update_form.html', {
+        'licence_form': licence_update_form,
+        'vehicle_form': vehicle_update_form,
+        'vehicle': vehicle,
+    })
 
 
-class CreateVehicleView(CreateView):
-    model = Vehicles
-    form_class = VehiclesCreateForm
-    template_name = 'vehicles/create.html'
-    success_url = reverse_lazy('vehicles')
-
-    def form_valid(self, form):
-        return super().form_valid(form)
-
+def delete_vehicle_and_licence(request, vehicle_id):
+    vehicle, licence = get_vehicle_and_licence_objects(vehicle_id)
+    if request.method == 'POST':
+        vehicle.delete()
+        licence.delete()
+        response = HttpResponse("")
+        redirect_url = reverse("vehicles")
+        response["HX-Redirect"] = redirect_url
+        return response
