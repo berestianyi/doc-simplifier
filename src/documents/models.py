@@ -6,7 +6,7 @@ class Documents(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     contract = models.ForeignKey(
         'contracts.Contracts',
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         blank=True,
         null=True
     )
