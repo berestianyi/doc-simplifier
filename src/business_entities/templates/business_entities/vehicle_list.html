@@ -1,0 +1,35 @@
+<div id="vehicleDetailList">
+    {% for vehicles_with_entity in vehicles_with_entities %}
+        <div class="input-group mb-1">
+            <input type="text"
+                   class="form-control"
+                   aria-describedby="button-addon2"
+                   value="{{ vehicles_with_entity.number }}, {{ vehicles_with_entity.brand }} {{ vehicles_with_entity.model }}, {{ vehicles_with_entity.year }}"
+                   readonly
+                   style="cursor: pointer;"
+                   hx-get="{% url 'redirect_to_vehicle_detail' vehicles_with_entity.id %}"
+                   hx-trigger="click">
+            <button
+                    class="btn btn-danger"
+                    type="button"
+                    id="button-addon2"
+                    hx-target="#vehicleDetailList"
+                    hx-trigger="click"
+                    hx-swap="outerHTML"
+                    hx-post="{% url 'remove_vehicle_from_business_entity' business_entity_id=business_entity.id vehicle_id=vehicles_with_entity.id %}"
+            >Видалити
+            </button>
+        </div>
+    {% endfor %}
+    <div class="d-flex flex-row justify-content-center my-2" id="searchVehicle">
+        <button
+                class="btn btn-success flex-fill"
+                type="button"
+                hx-get="{% url 'create_search_vehicle_form' business_entity.id %}"
+                hx-target="#searchVehicle"
+                hx-swap="innerHTML"
+                hx-trigger="click"
+        >Додати транспорт
+        </button>
+    </div>
+</div>

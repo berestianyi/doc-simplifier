@@ -1,0 +1,26 @@
+{% csrf_token %}
+{% if messages %}
+    <div class="alert-messages">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+{{ business_entity_form.non_field_errors }}
+{% for field in business_entity_form %}
+
+    <div class="d-flex flex-row flex-wrap flex-fill mb-1" id="{{ field.id_for_label }}_div">
+        <label for="{{ field.id_for_label }}" class="col-form-label fw-bold me-2">{{ field.label }}</label>
+        <div class="d-flex flex-fill" style="width: 350px">
+            {{ field }}
+        </div>
+        {% if field.errors %}
+            <div class="text-danger">
+                {{ field.errors }}
+            </div>
+        {% endif %}
+    </div>
+
+{% endfor %}

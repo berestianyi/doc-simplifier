@@ -1,26 +1,29 @@
 from django.urls import path
-from .views import (
-    VehiclesListView,
-    CreateVehicleView,
-    vehicles_detail,
-    delete_vehicle_and_licence,
-    submit_vehicle_and_licence_update_form,
-    create_vehicle_and_licence_update_form,
-)
+from . import views
 
 urlpatterns = [
-    path('vehicles/', VehiclesListView.as_view(), name='vehicles'),
-    path('vehicles/create/', CreateVehicleView.as_view(), name='create_vehicle'),
-    path('vehicles/<int:vehicle_id>/', vehicles_detail, name='vehicle_detail'),
-    path('vehicles/delete/<int:vehicle_id>/', delete_vehicle_and_licence, name='delete_vehicle_and_licence'),
+    path('vehicles/', views.VehiclesListView.as_view(), name='vehicles'),
+    path('vehicles/create/', views.CreateVehicleView.as_view(), name='create_vehicle'),
+    path('vehicles/<int:vehicle_id>/', views.vehicles_detail, name='vehicle_detail'),
+    path('vehicles/delete/<int:vehicle_id>/', views.delete_vehicle_and_licence, name='delete_vehicle_and_licence'),
     path(
-        'vehicles/htmx/create-vehicle-and-licence-update-form/<int:vehicle_id>/',
-        create_vehicle_and_licence_update_form,
+        'vehicles/create-vehicle-and-licence-update-form/<int:vehicle_id>/',
+        views.create_vehicle_and_licence_update_form,
         name='create_vehicle_and_licence_update_form'
     ),
     path(
-        'vehicles/htmx/submit-vehicle-and-licence-update-form/<int:vehicle_id>/',
-        submit_vehicle_and_licence_update_form,
+        'vehicles/submit-vehicle-and-licence-update-form/<int:vehicle_id>/',
+        views.submit_vehicle_and_licence_update_form,
         name='submit_vehicle_and_licence_update_form'
     ),
+    path('vehicle/<int:vehicle_id>/redirect-to-detail/',
+         views.redirect_to_vehicle_detail,
+         name='redirect_to_vehicle_detail'),
+
+    path(
+        'vehicle/redirect-to-create/',
+        views.redirect_to_vehicle_create_form,
+        name='redirect_to_vehicle_create_form'
+    ),
+
 ]

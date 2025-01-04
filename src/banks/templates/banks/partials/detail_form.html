@@ -1,0 +1,27 @@
+<form class="d-flex flex-column" id="bankDetailForm">
+    <div class="d-flex flex-column justify-content-center mb-3">
+        {% include 'banks/partials/form.html' %}
+    </div>
+    <div class="d-flex flex-row justify-content-start">
+        <button
+                class="btn btn-warning me-3"
+                type="button"
+                hx-target="#bankDetailForm"
+                hx-trigger="click"
+                hx-swap="outerHTML"
+                hx-get="{% url 'banks:update_bank_form' business_entity.id %}"
+        >
+            Редагувати
+        </button>
+        <button
+                class="btn btn-warning"
+                type="button"
+                hx-get="{% url 'banks:create_bank_search_form' business_entity.id %}"
+                hx-trigger="click"
+                hx-target="#bankForm"
+                hx-swap="outerHTML"
+        >
+            Знайти інший банк
+        </button>
+    </div>
+</form>

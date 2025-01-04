@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token }}">
     {% block title %}
         <title>Home page</title>
     {% endblock %}
@@ -37,7 +38,7 @@
                 </ul>
                 <div class="d-flex flex-row">
                     <form class="d-flex" role="search">
-                        <input class="form-control me-2" type="search" placeholder="Пошук по ЄДРПОУ"
+                        <input class="form-control border-success me-2" type="search" placeholder="Пошук по ЄДРПОУ"
                                aria-label="Search">
                         <button class="btn btn-outline-success" type="submit">Пошук</button>
                     </form>
@@ -67,6 +68,12 @@
     </footer>
 </div>
 <script src="{% static 'js/colormode.js' %}"></script>
+<script>
+  document.body.addEventListener('htmx:configRequest', function (event) {
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+    event.detail.headers['X-CSRFToken'] = csrfToken;
+  });
+</script>
 {% block static %}
 
 {% endblock %}

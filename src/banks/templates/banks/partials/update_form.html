@@ -1,0 +1,37 @@
+<form class="d-flex flex-column" id="bankUpdateForm">
+    <div class="d-flex flex-column justify-content-center mb-3">
+        {% include 'banks/partials/form.html' %}
+    </div>
+    <div class="d-flex flex-row justify-content-start">
+        <button
+                class="btn btn-danger me-3"
+                type="button"
+                hx-target="#bankForm"
+                hx-trigger="click"
+                hx-swap="outerHTML"
+                hx-get="{% url 'banks:create_bank_detail_form' business_entity.id %}"
+        >
+            Скасувати
+        </button>
+        <button
+                class="btn btn-danger me-3"
+                type="button"
+                hx-target="#bankForm"
+                hx-trigger="click"
+                hx-swap="outerHTML"
+                hx-get="{% url 'banks:delete_bank' business_entity.id %}"
+        >
+            Видалити
+        </button>
+        <button
+                class="btn btn-success"
+                type="button"
+                hx-target="#bankForm"
+                hx-trigger="click"
+                hx-swap="outerHTML"
+                hx-post="{% url 'banks:update_bank_form' business_entity.id %}"
+        >
+            Прийняти зміни
+        </button>
+    </div>
+</form>
