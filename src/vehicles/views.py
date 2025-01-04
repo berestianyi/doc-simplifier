@@ -99,7 +99,7 @@ def submit_vehicle_and_licence_update_form(request, vehicle_id):
             return render(request, 'vehicles/partials/detail_form.html', {
                 'licence_form': VehicleLicencesDetailForm(instance=updated_licence),
                 'vehicle_form': VehiclesDetailForm(instance=updated_vehicle),
-                'vehicle': vehicle,
+                'vehicle': updated_vehicle,
             })
         else:
             return render(request, 'vehicles/partials/update_form.html', {
@@ -124,3 +124,17 @@ def delete_vehicle_and_licence(request, vehicle_id):
         redirect_url = reverse("vehicles")
         response["HX-Redirect"] = redirect_url
         return response
+
+
+def redirect_to_vehicle_detail(request, vehicle_id):
+    response = HttpResponse("")
+    redirect_url = reverse("vehicle_detail", kwargs={'vehicle_id': vehicle_id})
+    response["HX-Redirect"] = redirect_url
+    return response
+
+
+def redirect_to_vehicle_create_form(request):
+    response = HttpResponse("")
+    redirect_url = reverse("create_vehicle")
+    response["HX-Redirect"] = redirect_url
+    return response
