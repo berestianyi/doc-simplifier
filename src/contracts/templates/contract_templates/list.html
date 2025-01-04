@@ -1,0 +1,18 @@
+{% extends 'templates/base.html' %}
+
+{% block title %}
+    <title>Contract Templates</title>
+{% endblock %}
+
+{% block body %}
+    <div class="d-flex flex-row flex-wrap">
+    {% for template in templates %}
+        <div class="card m-2" style="width: 300px">
+            <div class="card-body">
+                <h5 class="card-title">{{ template.name }}</h5>
+                <a href="#" class="btn btn-primary">Створити</a>
+            </div>
+        </div>
+    {% endfor %}
+    </div>
+{% endblock %}
