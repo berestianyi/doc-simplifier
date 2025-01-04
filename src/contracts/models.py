@@ -5,12 +5,12 @@ from django.utils.translation import gettext_lazy as _
 class Contracts(models.Model):
     business_entities = models.ForeignKey(
         'business_entities.BusinessEntities',
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         null=True,
         blank=True)
     template = models.ForeignKey(
         'contracts.Templates',
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         blank=True,
         null=True
     )
@@ -18,7 +18,7 @@ class Contracts(models.Model):
     end_date = models.DateField()
 
     def __str__(self):
-        return f"Contract {self.business_entities.name}"
+        return f"Contract {self.business_entities.director_name}"
 
 
 class Templates(models.Model):
