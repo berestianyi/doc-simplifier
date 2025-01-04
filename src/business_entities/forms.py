@@ -10,18 +10,9 @@ def validate_edrpou(value):
 
 
 class BusinessEntitiesCreateForm(forms.ModelForm):
-    edrpou = forms.CharField(
-        required=False,
-        label='ЄДРПОУ',
-        max_length=10,
-        min_length=8,
-        validators=[validate_edrpou],
-        widget=forms.TextInput(attrs={
-            'placeholder': '12345678',
-        })
-    )
 
     address = forms.CharField(
+        required=False,
         label='Адреса',
         widget=forms.Textarea(attrs={
             'placeholder': 'Україна, вул. Хрещатик, 1',
@@ -30,6 +21,7 @@ class BusinessEntitiesCreateForm(forms.ModelForm):
     )
 
     phone = forms.CharField(
+        required=False,
         label='Телефон',
         widget=forms.Textarea(attrs={
             'placeholder': '+3809901234567',
@@ -40,29 +32,16 @@ class BusinessEntitiesCreateForm(forms.ModelForm):
     class Meta:
         model = BusinessEntities
         fields = [
-            'business_entity',
-            'edrpou',
-            'director_name',
-            'company_name',
             'address',
             'phone',
             'email',
             'iban',
         ]
         labels = {
-            'director_name': 'ПІБ директора',
-            'company_name': 'Назва ТОВа',
             'email': 'Email',
             'iban': 'IBAN',
         }
         widgets = {
-            'business_entity': forms.RadioSelect(attrs={'class': 'btn-check'}),
-            'director_name': forms.TextInput(attrs={
-                'placeholder': 'Іванов Іван Іванович',
-            }),
-            'company_name': forms.TextInput(attrs={
-                'placeholder': 'Google LLC',
-            }),
             'email': forms.EmailInput(attrs={
                 'placeholder': 'example@gmail.com',
             }),
@@ -79,6 +58,106 @@ class BusinessEntitiesCreateForm(forms.ModelForm):
                 field.widget.attrs['class'] = 'form-control'
 
 
-class BusinessEntitiesUpdateForm(BusinessEntitiesCreateForm):
+class FOPCreateForm(BusinessEntitiesCreateForm):
+    edrpou = forms.CharField(
+        required=False,
+        label='ЄДРПОУ',
+        max_length=10,
+        min_length=10,
+        validators=[validate_edrpou],
+        widget=forms.TextInput(attrs={
+            'placeholder': '1234567890',
+        })
+    )
+
+    director_name = forms.CharField(
+        required=False,
+        label='ПІБ ФОПа',
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Іванов Іван Іванович',
+        })
+    )
+
     class Meta(BusinessEntitiesCreateForm.Meta):
+        model = BusinessEntities
+        fields = ['edrpou', 'director_name'] + BusinessEntitiesCreateForm.Meta.fields
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        for field_name, field in self.fields.items():
+            if 'class' not in field.widget.attrs:
+                field.widget.attrs['class'] = 'form-control'
+
+
+class FOPUpdateForm(FOPCreateForm):
+    class Meta(FOPCreateForm.Meta):
         pass
+
+
+class FOPDetailForm(FOPCreateForm):
+    class Meta(FOPCreateForm.Meta):
+        pass
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        for field_name, field in self.fields.items():
+            field.widget.attrs['disabled'] = True
+
+
+class TOVCreateForm(BusinessEntitiesCreateForm):
+
+    edrpou = forms.CharField(
+        required=False,
+        label='ЄДРПОУ',
+        max_length=8,
+        min_length=8,
+        validators=[validate_edrpou],
+        widget=forms.TextInput(attrs={
+            'placeholder': '12345678',
+        })
+    )
+
+    director_name = forms.CharField(
+        required=False,
+        label='ПІБ директора',
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Іванов Іван Іванович',
+        })
+    )
+
+    company_name = forms.CharField(
+        required=False,
+        label='Назва ТОВа',
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Google LLC',
+        })
+    )
+
+    class Meta(BusinessEntitiesCreateForm.Meta):
+        model = BusinessEntities
+        fields = ['edrpou', 'director_name', 'company_name'] + BusinessEntitiesCreateForm.Meta.fields
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        for field_name, field in self.fields.items():
+            if 'class' not in field.widget.attrs:
+                field.widget.attrs['class'] = 'form-control'
+
+
+class TOVUpdateForm(TOVCreateForm):
+    class Meta(TOVCreateForm.Meta):
+        pass
+
+
+class TOVDetailForm(TOVCreateForm):
+    class Meta(TOVCreateForm.Meta):
+        pass
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        for field_name, field in self.fields.items():
+            field.widget.attrs['disabled'] = True
