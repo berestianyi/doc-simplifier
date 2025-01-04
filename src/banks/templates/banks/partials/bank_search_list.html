@@ -1,0 +1,13 @@
+<div id="bankSearchList">
+    {% for bank in banks %}
+        <button type="button"
+                class="btn btn-outline-secondary btn-sm form-control mb-2"
+                hx-target="#bankSearchForm"
+                hx-trigger="click"
+                hx-swap="outerHTML"
+                hx-post="{% url 'banks:add_bank_to_business_entity' business_entity_id=business_entity.id bank_id=bank.id %}"
+        >
+            {{ bank.name }}, {{ bank.mfo }}
+        </button>
+    {% endfor %}
+</div>
