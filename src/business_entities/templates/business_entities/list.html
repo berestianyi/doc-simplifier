@@ -9,7 +9,7 @@
     <div class="d-flex flex-column">
         <div class="d-flex flex-fill justify-content-center m-4">
             <div class="m-3">
-                <a type="button" class="btn btn-outline-success fw-bold" href="{% url 'create_business_entity' %}">Додати
+                <a type="button" class="btn btn-success fw-bold" href="{% url 'create_business_entity' %}">Додати
                 Суб'єкт господарювання</a>
             </div>
         </div>
@@ -27,16 +27,16 @@
                 {% for entity in business_entities %}
                     <tr>
                         <th scope="row"><a class="text-decoration-none text-reset"
-                                           href="{% url 'business_entity_detail' entity_id=entity.id %}">{{ forloop.counter }}</a>
+                                           href="{% url 'business_entity_detail' entity.id %}">{{ forloop.counter }}</a>
                         </th>
                         <td><a class="text-decoration-none text-reset"
-                               href="{% url 'business_entity_detail' entity_id=entity.id %}">{{ entity.edrpou }}</a>
+                               href="{% url 'business_entity_detail' entity.id %}">{{ entity.edrpou }}</a>
                         </td>
                         <td><a class="text-decoration-none text-reset"
-                               href="{% url 'business_entity_detail' entity_id=entity.id %}">{{ entity.company_name|make_short_name:entity.edrpou }}</a>
+                               href="{% url 'business_entity_detail' entity.id %}">{{ entity.company_name|make_short_name:entity.director_name }}</a>
                         </td>
                         <td><a class="text-decoration-none text-reset"
-                               href="{% url 'business_entity_detail' entity_id=entity.id %}">{{ entity.phone }}</a></td>
+                               href="{% url 'business_entity_detail' entity.id %}">{{ entity.phone }}</a></td>
                     </tr>
                 {% endfor %}
                 </tbody>
