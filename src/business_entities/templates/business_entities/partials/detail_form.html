@@ -1,0 +1,14 @@
+<form class="d-flex flex-column flex-wrap" style="min-width: 350px" method="post" id="detailBusinessEntity">
+    {% include 'business_entities/partials/form.html' %}
+    <div class="d-flex flex-row flex-wrap my-3">
+        <button
+                type="button"
+                class="btn btn-warning mx-3 my-1"
+                hx-post="{% url 'create_business_entity_update_form' business_entity.id %}"
+                hx-target="#detailBusinessEntity"
+                hx-swap="outerHTML"
+                hx-trigger="click"
+        >Редагувати
+        </button>
+    </div>
+</form>

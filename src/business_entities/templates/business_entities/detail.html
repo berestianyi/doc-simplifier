@@ -1,0 +1,34 @@
+{% extends 'templates/base.html' %}
+{% load static %}
+{% load business_entity_filters %}
+
+{% block title %}
+    <title>СГ</title>
+{% endblock %}
+
+{% block body %}
+    <div class="d-flex flex-row flex-wrap ">
+        <div class="d-flex flex-fill flex-column px-2" style="min-width: 300px;">
+            <h3 id="test">{{ business_entity.company_name|make_short_name:business_entity.director_name }}</h3>
+            {% include 'business_entities/partials/detail_form.html' %}
+            <hr>
+            <h4>Банк</h4>
+            {% include 'banks/detail.html' %}
+        </div>
+        <div class="d-flex flex-fill flex-column px-2" style="min-width: 300px; max-width: 500px">
+            <h3>Транспортні засоби</h3>
+            {% include 'business_entities/vehicle_list.html' %}
+            <hr>
+            <h4>Документи</h4>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">РОЛАНД-ТРАНС АПТ</li>
+                <li class="list-group-item">РОЛАНД-ТРАНС АПТ РОЛАНД</li>
+
+            </ul>
+        </div>
+    </div>
+{% endblock %}
+
+{% block static %}
+
+{% endblock %}

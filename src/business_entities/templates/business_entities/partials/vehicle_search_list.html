@@ -1,0 +1,13 @@
+<div id="vehicleSearchList">
+    {% for vehicles_without_entity in vehicles_without_entities %}
+        <button type="button"
+                class="btn btn-outline-secondary btn-sm form-control mb-2"
+                hx-target="#vehicleDetailList"
+                hx-trigger="click"
+                hx-swap="outerHTML"
+                hx-post="{% url 'add_vehicle_to_business_entity' business_entity_id=business_entity.id vehicle_id=vehicles_without_entity.id %}"
+        >
+            {{ vehicles_without_entity.number }}, {{ vehicles_without_entity.brand }} {{ vehicles_without_entity.model }}
+        </button>
+    {% endfor %}
+</div>

@@ -1,0 +1,34 @@
+<form class="d-flex flex-column flex-wrap" style="min-width: 350px" method="POST" id="updateBusinessEntity">
+    {% include 'business_entities/partials/form.html' %}
+    <div class="d-flex flex-row flex-wrap my-3">
+        <button 
+                type="submit" 
+                class="btn btn-warning mx-3 my-1"
+                hx-post="{% url 'create_business_entity_detail_form' business_entity.id %}"
+                hx-target="#updateBusinessEntity"
+                hx-swap="outerHTML"
+                hx-trigger="click"
+                
+        >
+            Скасувати зміни
+        </button>
+        <button
+                type="button"
+                class="btn btn-success mx-3 my-1"
+                hx-post="{% url 'submit_business_entity_update_form' business_entity.id %}"
+                hx-target="#updateBusinessEntity"
+                hx-swap="outerHTML"
+                hx-trigger="click"
+        >
+            Застосувати зміни
+        </button>
+        <button
+                type="button"
+                class="btn btn-danger mx-3 my-1"
+                hx-post="{% url 'delete_business_entity' business_entity.id %}"
+                hx-trigger="click"
+        >
+            Видалити ТЗ
+        </button>
+    </div>
+</form>
