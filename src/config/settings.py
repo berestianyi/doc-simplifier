@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'business_entities.apps.BusinessEntitiesConfig',
     'contracts.apps.ContractsConfig',
-    'documents.apps.DocumentsConfig',
     'vehicles.apps.VehiclesConfig',
     'banks.apps.BanksConfig',
 ]
