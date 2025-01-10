@@ -1,0 +1,26 @@
+<form 
+        class="d-flex flex-column" 
+        id="templateCreateForm" 
+        method="POST" 
+        enctype="multipart/form-data" 
+        action="{% url 'contracts:create_template'%}"
+>
+    <div class="d-flex flex-column justify-content-center mb-3" style="width: 300px">
+        {% include 'contract_templates/partials/form.html' %}
+    </div>
+    <div class="d-flex flex-row justify-content-start">
+        <button
+                class="btn btn-danger me-3"
+                type="button"
+                hx-get="{% url 'contracts:redirect_to_templates_list' %}"
+        >
+            Скасувати
+        </button>
+        <button
+                class="btn btn-success"
+                type="submit"
+        >
+            Створити
+        </button>
+    </div>
+</form>
