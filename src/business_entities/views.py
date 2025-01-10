@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.views.generic import ListView
 
 from banks.forms import BankDetailForm
+from contracts.models import Contracts
 from .forms import FOPCreateForm, TOVCreateForm, FOPDetailForm, TOVDetailForm, TOVUpdateForm, \
     FOPUpdateForm
 from .models import BusinessEntities
@@ -99,12 +100,14 @@ def business_entity_detail(request, business_entity_id):
         .filter(vehiclelicences__business_entities=business_entity)
         .distinct()
     )
+    contracts = Contracts.objects.filter(business_entities_id=business_entity_id)
 
     context = {
         'business_entity_form': business_entity_form,
         'business_entity': business_entity,
         'vehicles_with_entities': vehicles_with_entities,
         'bank_form': bank_form,
+        'contracts': contracts
     }
     return render(request, 'business_entities/detail.html', context)
 

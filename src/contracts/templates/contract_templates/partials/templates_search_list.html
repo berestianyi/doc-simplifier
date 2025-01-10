@@ -1,0 +1,13 @@
+<div id="templatesSearchList">
+    {% for template in templates %}
+        <button type="button"
+                class="btn btn-outline-secondary btn-sm form-control mb-2"
+                hx-target="#templatesSearchForm"
+                hx-trigger="click"
+                hx-swap="outerHTML"
+                hx-get="{% url 'contracts:create_contract' business_entity.id template.id %}"
+        >
+            {{ template.name }}
+        </button>
+    {% endfor %}
+</div>

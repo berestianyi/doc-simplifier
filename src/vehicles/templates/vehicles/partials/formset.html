@@ -1,0 +1,19 @@
+<div class="d-flex flex-column flex-wrap" style="min-width: 350px">
+{% for vehicle_form in formset  %}
+    {{ vehicle_form.non_field_errors }}
+    {% for field in vehicle_form %}
+        <div class="d-flex flex-row flex-wrap flex-fill mb-1" id="{{ field.id_for_label }}_div">
+            <label for="{{ field.id_for_label }}" class="col-form-label me-2">{{ field.label }}</label>
+            <div class="d-flex flex-fill" style="width: 350px">
+                {{ field }}
+            </div>
+            {% if field.errors %}
+                <div class="text-danger">
+                    {{ field.errors }}
+                </div>
+            {% endif %}
+        </div>
+    {% endfor %}
+    <hr>
+{% endfor %}
+</div>

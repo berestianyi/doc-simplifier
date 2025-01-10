@@ -106,6 +106,11 @@ class FOPDetailForm(FOPCreateForm):
             field.widget.attrs['disabled'] = True
 
 
+class ContractFOPForm(FOPUpdateForm):
+    class Meta(FOPUpdateForm.Meta):
+        pass
+
+
 class TOVCreateForm(BusinessEntitiesCreateForm):
 
     edrpou = forms.CharField(
@@ -161,3 +166,8 @@ class TOVDetailForm(TOVCreateForm):
 
         for field_name, field in self.fields.items():
             field.widget.attrs['disabled'] = True
+
+
+class ContractTOVForm(TOVUpdateForm):
+    class Meta(TOVUpdateForm.Meta):
+        pass
