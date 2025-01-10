@@ -15,6 +15,17 @@ files = [
 tests = ["mypy (>=0.800)", "pytest", "pytest-asyncio"]
 
 [[package]]
+name = "dawg-python"
+version = "0.7.2"
+description = "Pure-python reader for DAWGs (DAFSAs) created by dawgdic C++ library or DAWG Python extension."
+optional = false
+python-versions = "*"
+files = [
+    {file = "DAWG-Python-0.7.2.tar.gz", hash = "sha256:4a5e3286e6261cca02f205cfd5516a7ab10190fa30c51c28d345808f595e3421"},
+    {file = "DAWG_Python-0.7.2-py2.py3-none-any.whl", hash = "sha256:4941d5df081b8d6fcb4597e073a9f60d5c1ccc9d17cd733e8744d7ecfec94ef3"},
+]
+
+[[package]]
 name = "django"
 version = "5.1.3"
 description = "A high-level Python web framework that encourages rapid development and clean, pragmatic design."
@@ -265,6 +276,48 @@ files = [
 ]
 
 [[package]]
+name = "pymorphy3"
+version = "2.0.2"
+description = "Morphological analyzer (POS tagger + inflection engine) for Russian language."
+optional = false
+python-versions = "*"
+files = [
+    {file = "pymorphy3-2.0.2-py3-none-any.whl", hash = "sha256:5c4534e09e424c765a69601b5cc3735080dfafed15105961b3c16616793891d0"},
+    {file = "pymorphy3-2.0.2.tar.gz", hash = "sha256:5192660028a0bfdf33ff19e827b73d6467dea32be87ad0faae9f2425e40d701c"},
+]
+
+[package.dependencies]
+dawg-python = ">=0.7.1"
+pymorphy3-dicts-ru = "*"
+setuptools = {version = ">=68.2.2", markers = "python_version >= \"3.12\""}
+
+[package.extras]
+cli = ["click"]
+fast = ["DAWG (>=0.8)"]
+
+[[package]]
+name = "pymorphy3-dicts-ru"
+version = "2.4.417150.4580142"
+description = "Russian dictionaries for pymorphy2"
+optional = false
+python-versions = "*"
+files = [
+    {file = "pymorphy3-dicts-ru-2.4.417150.4580142.tar.gz", hash = "sha256:39ab379d4ca905bafed50f5afc3a3de6f9643605776fbcabc4d3088d4ed382b0"},
+    {file = "pymorphy3_dicts_ru-2.4.417150.4580142-py2.py3-none-any.whl", hash = "sha256:718bac64c73c10c16073a199402657283d9b64c04188b694f6d3e9b0d85440f4"},
+]
+
+[[package]]
+name = "pymorphy3-dicts-uk"
+version = "2.4.1.1.1663094765"
+description = "Ukrainian dictionaries for pymorphy3"
+optional = false
+python-versions = "*"
+files = [
+    {file = "pymorphy3-dicts-uk-2.4.1.1.1663094765.tar.gz", hash = "sha256:b3945a34136e193806cde657ba271d88a60761e75137c13d138a8d142a8d12ac"},
+    {file = "pymorphy3_dicts_uk-2.4.1.1.1663094765-py2.py3-none-any.whl", hash = "sha256:6af1e389b69e7e90ef7d50b20e3955a0c78383317a15d9ade5979f1536354733"},
+]
+
+[[package]]
 name = "python-docx"
 version = "1.1.2"
 description = "Create, read, and update Microsoft Word .docx files."
@@ -308,6 +361,26 @@ files = [
 cli = ["click (>=5.0)"]
 
 [[package]]
+name = "setuptools"
+version = "75.7.0"
+description = "Easily download, build, install, upgrade, and uninstall Python packages"
+optional = false
+python-versions = ">=3.9"
+files = [
+    {file = "setuptools-75.7.0-py3-none-any.whl", hash = "sha256:84fb203f278ebcf5cd08f97d3fb96d3fbed4b629d500b29ad60d11e00769b183"},
+    {file = "setuptools-75.7.0.tar.gz", hash = "sha256:886ff7b16cd342f1d1defc16fc98c9ce3fde69e087a4e1983d7ab634e5f41f4f"},
+]
+
+[package.extras]
+check = ["pytest-checkdocs (>=2.4)", "pytest-ruff (>=0.2.1)", "ruff (>=0.8.0)"]
+core = ["importlib_metadata (>=6)", "jaraco.collections", "jaraco.functools (>=4)", "jaraco.text (>=3.7)", "more_itertools", "more_itertools (>=8.8)", "packaging", "packaging (>=24.2)", "platformdirs (>=4.2.2)", "tomli (>=2.0.1)", "wheel (>=0.43.0)"]
+cover = ["pytest-cov"]
+doc = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "pygments-github-lexers (==0.0.5)", "pyproject-hooks (!=1.1)", "rst.linker (>=1.9)", "sphinx (>=3.5)", "sphinx-favicon", "sphinx-inline-tabs", "sphinx-lint", "sphinx-notfound-page (>=1,<2)", "sphinx-reredirects", "sphinxcontrib-towncrier", "towncrier (<24.7)"]
+enabler = ["pytest-enabler (>=2.2)"]
+test = ["build[virtualenv] (>=1.0.3)", "filelock (>=3.4.0)", "ini2toml[lite] (>=0.14)", "jaraco.develop (>=7.21)", "jaraco.envs (>=2.2)", "jaraco.path (>=3.7.2)", "jaraco.test (>=5.5)", "packaging (>=24.2)", "pip (>=19.1)", "pyproject-hooks (!=1.1)", "pytest (>=6,!=8.1.*)", "pytest-home (>=0.5)", "pytest-perf", "pytest-subprocess", "pytest-timeout", "pytest-xdist (>=3)", "tomli-w (>=1.0.0)", "virtualenv (>=13.0.0)", "wheel (>=0.44.0)"]
+type = ["importlib_metadata (>=7.0.2)", "jaraco.develop (>=7.21)", "mypy (==1.14.*)", "pytest-mypy"]
+
+[[package]]
 name = "sqlparse"
 version = "0.5.1"
 description = "A non-validating SQL parser."
@@ -347,4 +420,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "3cf6045c547d11bab372476b0045539085d64a3f0883a522c84392b0fc45cc08"
+content-hash = "c4fa9abb48194e4556c4095d00d2308f7c9dea27899c3e6f6503316ad5c17673"
