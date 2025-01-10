@@ -1,0 +1,19 @@
+{% extends 'templates/base.html' %}
+{% load static %}
+
+{% block title %}
+    <title>Створення контракту</title>
+{% endblock %}
+
+{% block body %}
+    <div class="d-flex flex-row flex-wrap ">
+        <div class="d-flex flex-fill flex-column px-2" style="min-width: 300px;">
+            <h3 id="test">Створення документу</h3>
+            {% include 'business_entities/partials/form.html' %}
+        </div>
+        <div class="d-flex flex-fill flex-column px-2" style="min-width: 300px; max-width: 500px">
+            <h3>Транспортні засоби</h3>
+            {% include 'vehicles/partials/formset.html' %}
+        </div>
+    </div>
+{% endblock %}
