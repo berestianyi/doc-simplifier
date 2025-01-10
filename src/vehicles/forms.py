@@ -2,7 +2,10 @@ import re
 
 from django import forms
 from django.core.exceptions import ValidationError
+from django.forms import inlineformset_factory
 from django.utils.translation import gettext_lazy as _
+
+from business_entities.models import BusinessEntities
 from .models import Vehicles, VehicleLicences
 
 
@@ -24,16 +27,7 @@ def validate_unique_vehicle_number(value):
             )
 
 
-class VehiclesCreateForm(forms.ModelForm):
-    vin_code = forms.CharField(
-        required=False,
-        label='VIN-код',
-        max_length=17,
-        validators=[validate_vin_code],
-        widget=forms.TextInput(attrs={
-            'placeholder': 'Введіть VIN-код',
-        })
-    )
+class VehiclesForm(forms.ModelForm):
     number = forms.CharField(
         required=False,
         label='Номер ТЗ',
@@ -47,33 +41,19 @@ class VehiclesCreateForm(forms.ModelForm):
     class Meta:
         model = Vehicles
         fields = [
-            'vin_code',
-            'vehicle_type',
             'number',
             'brand',
             'model',
             'year',
-            'unladen_weight',
-            'laden_weight',
-            'engine_capacity',
-            'number_of_seats',
-            'euro',
         ]
+
         labels = {
-            'vehicle_type': 'Тип транспортного засобу',
             'brand': 'Марка',
             'model': 'Модель',
             'year': 'Рік випуску',
-            'unladen_weight': 'Вага без навантаження',
-            'laden_weight': 'Вага з навантаженням',
-            'engine_capacity': 'Обʼєм двигуна',
-            'number_of_seats': 'Кількість місць',
-            'euro': 'Екологічний стандарт (Євро)',
         }
+
         widgets = {
-            'vehicle_type': forms.Select(attrs={
-                'class': 'form-select'
-            }),
             'brand': forms.TextInput(attrs={
                 'placeholder': 'Введіть марку',
             }),
@@ -82,6 +62,50 @@ class VehiclesCreateForm(forms.ModelForm):
             }),
             'year': forms.TextInput(attrs={
                 'placeholder': 'Введіть рік випуску',
+            }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        for field_name, field in self.fields.items():
+            if 'class' not in field.widget.attrs:
+                field.widget.attrs['class'] = 'form-control'
+
+
+class VehiclesCreateForm(VehiclesForm):
+    vin_code = forms.CharField(
+        required=False,
+        label='VIN-код',
+        max_length=17,
+        validators=[validate_vin_code],
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Введіть VIN-код',
+        })
+    )
+
+    class Meta(VehiclesForm.Meta):
+        model = Vehicles
+        fields = ['vin_code', 'vehicle_type'] + VehiclesForm.Meta.fields + [
+            'unladen_weight',
+            'laden_weight',
+            'engine_capacity',
+            'number_of_seats',
+            'euro',
+        ]
+        labels = {
+            **VehiclesForm.Meta.labels,
+            'vehicle_type': 'Тип транспортного засобу',
+            'unladen_weight': 'Вага без навантаження',
+            'laden_weight': 'Вага з навантаженням',
+            'engine_capacity': 'Обʼєм двигуна',
+            'number_of_seats': 'Кількість місць',
+            'euro': 'Екологічний стандарт (Євро)',
+        }
+        widgets = {
+            **VehiclesForm.Meta.widgets,
+            'vehicle_type': forms.Select(attrs={
+                'class': 'form-select'
             }),
             'unladen_weight': forms.TextInput(attrs={
                 'placeholder': 'Введіть вагу без навантаження',
@@ -122,6 +146,11 @@ class VehiclesDetailForm(VehiclesCreateForm):
 
         for field_name, field in self.fields.items():
             field.widget.attrs['disabled'] = True
+
+
+class VehicleContractForm(VehiclesForm):
+    class Meta(VehiclesForm.Meta):
+        pass
 
 
 class VehicleLicencesCreateForm(forms.ModelForm):
