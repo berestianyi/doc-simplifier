@@ -1,8 +1,10 @@
+from django.db.models import Count, Q
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, View
 
+from business_entities.models import BusinessEntities
 from .forms import (
     VehiclesCreateForm,
     VehiclesUpdateForm,
@@ -138,3 +140,103 @@ def redirect_to_vehicle_create_form(request):
     redirect_url = reverse("create_vehicle")
     response["HX-Redirect"] = redirect_url
     return response
+
+
+def create_search_vehicle_form(request, business_entity_id):
+    business_entity = BusinessEntities.objects.get(pk=business_entity_id)
+    vehicles_without_entities = (
+        Vehicles.objects
+        .annotate(num_entities=Count('vehiclelicences__business_entities'))
+        .filter(num_entities=0)
+    )
+
+    return render(
+        request,
+        'vehicles/partials/vehicle_search_form.html',
+        {
+            'vehicles_without_entities': vehicles_without_entities,
+            'business_entity': business_entity
+        }
+    )
+
+
+def search_vehicles_without_entities(request, business_entity_id):
+    business_entity = BusinessEntities.objects.get(pk=business_entity_id)
+    query = request.GET.get('q', '')
+
+    vehicles_without_entities = (
+        Vehicles.objects
+        .annotate(num_entities=Count('vehiclelicences__business_entities'))
+        .filter(num_entities=0)
+    )
+
+    if query:
+        vehicles_without_entities = vehicles_without_entities.filter(
+            number__icontains=query
+        )
+
+    return render(
+        request,
+        'vehicles/templates/vehicles/partials/vehicle_search_list.html',
+        {
+            'vehicles_without_entities': vehicles_without_entities,
+            'query': query,
+            'business_entity': business_entity,
+        }
+    )
+
+
+def add_vehicle_to_business_entity(request, business_entity_id, vehicle_id):
+    business_entity = get_object_or_404(BusinessEntities, id=business_entity_id)
+    vehicle = get_object_or_404(Vehicles, id=vehicle_id)
+    vehicle_licence = get_object_or_404(VehicleLicences, vehicle=vehicle)
+    vehicle_licence.business_entities.add(business_entity)
+    vehicle_licence.save()
+
+    vehicles_with_entities = (
+        Vehicles.objects
+        .filter(vehiclelicences__business_entities=business_entity)
+        .distinct()
+    )
+
+    context = {
+        'vehicles_with_entities': vehicles_with_entities,
+        'business_entity': business_entity,
+    }
+
+    return render(request, 'business_entities/../vehicles/templates/vehicles/vehicle_list.html', context)
+
+
+def remove_vehicle_from_business_entity(request, business_entity_id, vehicle_id):
+    business_entity = get_object_or_404(BusinessEntities, id=business_entity_id)
+    vehicle = get_object_or_404(Vehicles, id=vehicle_id)
+    vehicle_licence = get_object_or_404(VehicleLicences, vehicle=vehicle)
+    vehicle_licence.business_entities.remove(business_entity)
+    vehicle_licence.save()
+
+    vehicles_with_entities = (
+        Vehicles.objects
+        .filter(vehiclelicences__business_entities=business_entity)
+        .distinct()
+    )
+    context = {
+        'vehicles_with_entities': vehicles_with_entities,
+        'business_entity': business_entity,
+
+    }
+
+    return render(request, 'business_entities/../vehicles/templates/vehicles/vehicle_list.html', context)
+
+
+def vehicles_in_business_entity(request, business_entity_id):
+    business_entity = BusinessEntities.objects.get(pk=business_entity_id)
+    vehicles_with_entities = (
+        Vehicles.objects
+        .filter(vehiclelicences__business_entities=business_entity)
+        .distinct()
+    )
+    context = {
+        'vehicles_with_entities': vehicles_with_entities,
+        'business_entity': business_entity,
+    }
+    return render(request, 'business_entities/../vehicles/templates/vehicles/vehicle_list.html', context)

@@ -1,8 +1,10 @@
 from django.urls import path, include
+from django.views.generic import TemplateView
 
 urlpatterns = [
-    path("", include("business_entities.urls")),
-    path("", include("vehicles.urls")),
+    path('', TemplateView.as_view(template_name="home.html"), name='home_page'),
+    path("business-entities/", include("business_entities.urls", namespace='business_entities')),
+    path("vehicles/", include("vehicles.urls", namespace='vehicles')),
     path('banks/', include('banks.urls', namespace='banks')),
     path('contracts/', include('contracts.urls', namespace='contracts')),
 ]

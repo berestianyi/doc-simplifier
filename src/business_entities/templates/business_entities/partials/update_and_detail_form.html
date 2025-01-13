@@ -1,0 +1,47 @@
+{% load business_entity_filters %}
+
+<form class="d-flex flex-column flex-wrap" style="min-width: 350px" method="post" id="businessEntityForm">
+    <h3 id="test">{{ business_entity.company_name|make_short_name:business_entity.director_name }}</h3>
+    {% include 'business_entities/partials/form.html' %}
+    {% if action == 'update_business_entity' %}
+        <div class="d-flex flex-row flex-wrap my-3">
+            <button
+                    type="submit"
+                    class="btn btn-warning mx-3 my-1"
+                    hx-get="{% url 'business_entities:business_entity_detail_form' business_entity.id %}"
+                    hx-target="#businessEntityForm"
+                    hx-swap="outerHTML"
+
+            >
+                Скасувати зміни
+            </button>
+            <button
+                    type="button"
+                    class="btn btn-success mx-3 my-1"
+                    hx-post="{% url 'business_entities:business_entity_update_form' business_entity.id %}"
+                    hx-target="#businessEntityForm"
+                    hx-swap="outerHTML"
+            >
+                Застосувати зміни
+            </button>
+            <button
+                    type="button"
+                    class="btn btn-danger mx-3 my-1"
+                    hx-post="{% url 'business_entities:delete_business_entity' business_entity.id %}"
+            >
+                Видалити ТЗ
+            </button>
+        </div>
+    {% else %}
+        <div class="d-flex flex-row flex-wrap my-3">
+            <button
+                    type="button"
+                    class="btn btn-warning mx-3 my-1"
+                    hx-get="{% url 'business_entities:business_entity_update_form' business_entity.id %}"
+                    hx-target="#businessEntityForm"
+                    hx-swap="outerHTML"
+            >Редагувати
+            </button>
+        </div>
+    {% endif %}
+</form>

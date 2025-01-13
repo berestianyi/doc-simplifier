@@ -5,7 +5,7 @@
                 hx-target="#vehicleDetailList"
                 hx-trigger="click"
                 hx-swap="outerHTML"
-                hx-post="{% url 'add_vehicle_to_business_entity' business_entity_id=business_entity.id vehicle_id=vehicles_without_entity.id %}"
+                hx-post="{% url 'business_entities:add_vehicle_to_business_entity' business_entity_id=business_entity.id vehicle_id=vehicles_without_entity.id %}"
         >
             {{ vehicles_without_entity.number }}, {{ vehicles_without_entity.brand }} {{ vehicles_without_entity.model }}
         </button>

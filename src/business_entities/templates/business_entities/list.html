@@ -2,71 +2,58 @@
 {% load business_entity_filters %}
 
 {% block title %}
-    <title>Home page</title>
+    <title>Суб'єкти господарювання</title>
 {% endblock %}
 
 {% block body %}
     <div class="d-flex flex-column">
-        <div class="d-flex flex-fill justify-content-center m-4">
-            <div class="m-3">
-                <a type="button" class="btn btn-success fw-bold" href="{% url 'create_business_entity' %}">Додати
-                Суб'єкт господарювання</a>
-            </div>
-        </div>
-        <div class="d-flex flex-column flex-fill align-items-center">
-            <table class="table table-striped table-sm">
-                <thead>
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">ЄДРПОУ</th>
-                    <th scope="col">Назва</th>
-                    <th scope="col">Телефон</th>
-                </tr>
-                </thead>
-                <tbody class="table-group-divider">
-                {% for entity in business_entities %}
-                    <tr>
-                        <th scope="row"><a class="text-decoration-none text-reset"
-                                           href="{% url 'business_entity_detail' entity.id %}">{{ forloop.counter }}</a>
-                        </th>
-                        <td><a class="text-decoration-none text-reset"
-                               href="{% url 'business_entity_detail' entity.id %}">{{ entity.edrpou }}</a>
-                        </td>
-                        <td><a class="text-decoration-none text-reset"
-                               href="{% url 'business_entity_detail' entity.id %}">{{ entity.company_name|make_short_name:entity.director_name }}</a>
-                        </td>
-                        <td><a class="text-decoration-none text-reset"
-                               href="{% url 'business_entity_detail' entity.id %}">{{ entity.phone }}</a></td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-            {% if is_paginated %}
-                <div class="btn-group" role="group" aria-label="Pagination">
-                    {% if page_obj.has_previous %}
-                        <a href="?page={{ page_obj.previous_page_number }}"
-                           class="btn btn-outline-primary">&laquo;</a>
-                    {% endif %}
-
-                    {% for page in paginator.page_range %}
-                        {% if page > page_obj.number|add:'-3' and page < page_obj.number|add:'3' %}
-                            {% if page == page_obj.number %}
-                                <a href="?page={{ page }}"
-                                   class="btn btn-outline-primary active"
-                                   aria-current="page">{{ page }}</a>
-                            {% else %}
-                                <a href="?page={{ page }}"
-                                   class="btn btn-outline-primary">{{ page }}</a>
-                            {% endif %}
-                        {% endif %}
-                    {% endfor %}
-
-                    {% if page_obj.has_next %}
-                        <a href="?page={{ page_obj.next_page_number }}"
-                           class="btn btn-outline-primary">&raquo;</a>
-                    {% endif %}
+        <form
+                id="businessEntityListFilterForm"
+                method="GET"
+                hx-get="{% url 'business_entities:business_entities' %}"
+                hx-target="#businessEntityListContainer"
+                hx-swap="outerHTML"
+                hx-include="#businessEntityListFilterForm"
+        >
+            <div class="d-flex flex-row flex-wrap justify-content-center">
+                <div class="col-auto m-3">
+                    <a type="button" class="btn btn-success fw-bold" href="{% url 'business_entities:create_fop_form' %}">
+                        Додати Суб'єкт господарювання
+                    </a>
                 </div>
-            {% endif %}
-        </div>
+                <div class="col-auto my-3">
+                    <input type="search" class="form-control" name="searchBusinessEntity" placeholder="Пошук по базі">
+                </div>
+                <div class="col-auto my-3 ms-2">
+                    <button type="submit" class="btn btn-primary mb-3">Пошук</button>
+                </div>
+                <div class="col-auto m-3">
+                    <select class="form-select" name="selectBusinessEntity"
+                            hx-get="{% url 'business_entities:business_entities' %}"
+                            hx-target="#businessEntityListContainer"
+                            hx-swap="outerHTML"
+                            hx-trigger="change"
+                            hx-include="#businessEntityListFilterForm"
+                    >
+                        <option selected value="">Всі СГ</option>
+                        <option value="{{ business_entities_choices.FOP }}">{{ business_entities_choices.FOP.label }}</option>
+                        <option value="{{ business_entities_choices.TOV }}">{{ business_entities_choices.TOV.label }}</option>
+                    </select>
+                </div>
+                <div class="col-auto my-3">
+                    <select class="form-select" name="selectDate"
+                            hx-get="{% url 'business_entities:business_entities' %}"
+                            hx-target="#businessEntityListContainer"
+                            hx-swap="outerHTML"
+                            hx-trigger="change"
+                            hx-include="#businessEntityListFilterForm"
+                    >
+                        <option selected value="created_at">Від нових до старих</option>
+                        <option value="-created_at">Від старих до нових</option>
+                    </select>
+                </div>
+            </div>
+        </form>
+        {% include 'business_entities/partials/list_fields.html' %}
     </div>
 {% endblock %}
