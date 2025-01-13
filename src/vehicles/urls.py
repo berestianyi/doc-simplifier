@@ -1,6 +1,8 @@
 from django.urls import path
 from . import views
 
+app_name = 'vehicles'
+
 urlpatterns = [
     path('vehicles/', views.VehiclesListView.as_view(), name='vehicles'),
     path('vehicles/create/', views.CreateVehicleView.as_view(), name='create_vehicle'),
@@ -25,5 +27,29 @@ urlpatterns = [
         views.redirect_to_vehicle_create_form,
         name='redirect_to_vehicle_create_form'
     ),
-
+path(
+        'create_search_vehicle_form/<int:business_entity_id>/',
+        views.create_search_vehicle_form,
+        name='create_search_vehicle_form',
+    ),
+    path(
+        'search_vehicles/<int:business_entity_id>/',
+        views.search_vehicles_without_entities,
+        name='search_vehicles_without_entities'
+    ),
+    path(
+        '<int:business_entity_id>/add-vehicle/<int:vehicle_id>/',
+        views.add_vehicle_to_business_entity,
+        name='add_vehicle_to_business_entity'
+    ),
+    path(
+        '<int:business_entity_id>/remove-vehicle/<int:vehicle_id>/',
+        views.remove_vehicle_from_business_entity,
+        name='remove_vehicle_from_business_entity'
+    ),
+    path(
+        '<int:business_entity_id>/vehicles/',
+        views.vehicles_in_business_entity,
+        name='vehicles_in_business_entity'
+    ),
 ]
