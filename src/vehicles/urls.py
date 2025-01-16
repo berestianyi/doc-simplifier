@@ -4,52 +4,42 @@ from . import views
 app_name = 'vehicles'
 
 urlpatterns = [
-    path('vehicles/', views.VehiclesListView.as_view(), name='vehicles'),
-    path('vehicles/create/', views.CreateVehicleView.as_view(), name='create_vehicle'),
-    path('vehicles/<int:vehicle_id>/', views.vehicles_detail, name='vehicle_detail'),
-    path('vehicles/delete/<int:vehicle_id>/', views.delete_vehicle_and_licence, name='delete_vehicle_and_licence'),
+    path('list/', views.VehiclesListView.as_view(), name='list'),
+    path('create/', views.CreateVehicleView.as_view(), name='create'),
+    path('<int:vehicle_id>/', views.VehicleAndLicenceDetailView.as_view(), name='detail'),
+    path('<int:vehicle_id>/update/', views.VehicleAndLicenceUpdateView.as_view(), name='update'),
+    path('<int:vehicle_id>/delete/', views.VehicleAndLicenceDeleteView.as_view(), name='delete'),
+    path('<int:vehicle_id>/redirect-to-detail/',
+         views.VehicleRedirectToDetailView.as_view(),
+         name='redirect_to_detail'),
     path(
-        'vehicles/create-vehicle-and-licence-update-form/<int:vehicle_id>/',
-        views.create_vehicle_and_licence_update_form,
-        name='create_vehicle_and_licence_update_form'
+        'redirect-to-create/',
+        views.VehicleRedirectToCreateView.as_view(),
+        name='redirect_to_create_form'
     ),
     path(
-        'vehicles/submit-vehicle-and-licence-update-form/<int:vehicle_id>/',
-        views.submit_vehicle_and_licence_update_form,
-        name='submit_vehicle_and_licence_update_form'
-    ),
-    path('vehicle/<int:vehicle_id>/redirect-to-detail/',
-         views.redirect_to_vehicle_detail,
-         name='redirect_to_vehicle_detail'),
-
-    path(
-        'vehicle/redirect-to-create/',
-        views.redirect_to_vehicle_create_form,
-        name='redirect_to_vehicle_create_form'
-    ),
-path(
-        'create_search_vehicle_form/<int:business_entity_id>/',
-        views.create_search_vehicle_form,
-        name='create_search_vehicle_form',
+        'create-search-form/<int:business_entity_id>/',
+        views.CreateSearchVehicleFormView.as_view(),
+        name='create_search_form',
     ),
     path(
-        'search_vehicles/<int:business_entity_id>/',
-        views.search_vehicles_without_entities,
-        name='search_vehicles_without_entities'
+        'search/<int:business_entity_id>/',
+        views.SearchVehiclesWithoutEntitiesListView.as_view(),
+        name='search_without_entities'
     ),
     path(
-        '<int:business_entity_id>/add-vehicle/<int:vehicle_id>/',
-        views.add_vehicle_to_business_entity,
-        name='add_vehicle_to_business_entity'
+        '<int:vehicle_id>/add-to-business-entity/<int:business_entity_id>/',
+        views.AddVehicleToBusinessEntityView.as_view(),
+        name='add_to_business_entity'
     ),
     path(
-        '<int:business_entity_id>/remove-vehicle/<int:vehicle_id>/',
-        views.remove_vehicle_from_business_entity,
-        name='remove_vehicle_from_business_entity'
+        '<int:vehicle_id>/remove-vehicle-from-business-entity/<int:business_entity_id>',
+        views.RemoveVehicleFromBusinessEntityView.as_view(),
+        name='remove_from_business_entity'
     ),
     path(
-        '<int:business_entity_id>/vehicles/',
-        views.vehicles_in_business_entity,
-        name='vehicles_in_business_entity'
+        'in-business-entity/<int:business_entity_id>/',
+        views.VehiclesInBusinessEntityListView.as_view(),
+        name='list_in_business_entity'
     ),
 ]
