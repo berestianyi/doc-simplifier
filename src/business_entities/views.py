@@ -1,3 +1,5 @@
+from typing import List
+
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import HttpResponse
@@ -10,6 +12,84 @@ from .forms import FOPCreateForm, TOVCreateForm, FOPDetailForm, TOVDetailForm, T
     FOPUpdateForm
 from .models import BusinessEntities
 from vehicles.models import Vehicles
+
+
+class HtmxTemplateMixin:
+    partial_template_name: str = ''
+
+    def get_template_names(self) -> List[str]:
+        if self.request.headers.get("HX-Request") == "true" and self.partial_template_name:
+            return [self.partial_template_name]
+        return [self.template_name]
+
+
+class SortOrderMixin:
+    default_sort_field: str = 'created_at'
+
+    def get_sort_field(self) -> str:
+        return self.request.GET.get('selectDate', self.default_sort_field).strip()
+
+    def sort_queryset(self, queryset):
+        sort_field = self.get_sort_field()
+        return queryset.order_by(sort_field)
+
+
+class SearchMixin:
+    search_param_name: str = ''
+    search_fields: List[str] = []
+
+    def get_search_query(self) -> str:
+        return self.request.GET.get(self.search_param_name, '').strip()
+
+    def build_search_filters(self, search_query: str) -> Q:
+        q_object = Q()
+        for field_name in self.search_fields:
+            q_object |= Q(**{f"{field_name}__icontains": search_query})
+        return q_object
+
+    def search_queryset(self, queryset):
+        search_query = self.get_search_query()
+        if search_query:
+            filters = self.build_search_filters(search_query)
+            queryset = queryset.filter(filters)
+        return queryset
+
+
+class SearchFilterMixin:
+    """
+    Миксин для поиска/фильтрации и сортировки BusinessEntities.
+    """
+    search_param_name = 'searchBusinessEntity'
+    entity_type_param_name = 'selectBusinessEntity'
+    sort_order_param_name = 'selectDate'
+
+    def get_search_filters(self, search_query):
+        return (
+            Q(edrpou__icontains=search_query) |
+            Q(company_name__icontains=search_query) |
+            Q(director_name__icontains=search_query) |
+            Q(address__icontains=search_query) |
+            Q(email__icontains=search_query) |
+            Q(phone__icontains=search_query) |
+            Q(iban__icontains=search_query)
+        )
+
+    def filter_queryset(self, queryset):
+        request = self.request
+        search_query = request.GET.get(self.search_param_name, '').strip()
+        entity_type = request.GET.get(self.entity_type_param_name, '')
+        sort_order = request.GET.get(self.sort_order_param_name, 'created_at').strip()
+
+        if search_query:
+            queryset = queryset.filter(self.get_search_filters(search_query))
+        if entity_type:
+            queryset = queryset.filter(business_entity=entity_type)
+
+        return queryset.order_by(sort_order)
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        return self.filter_queryset(queryset)
 
 
 def business_entities_list(request):
