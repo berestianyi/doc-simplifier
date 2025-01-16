@@ -1,0 +1,53 @@
+<div id="vehicleSearchList">
+    {% for vehicles_without_entity in vehicles_without_entities %}
+        <button type="button"
+                class="btn btn-outline-secondary btn-sm form-control mb-2"
+                hx-target="#vehicleDetailList"
+                hx-trigger="click"
+                hx-swap="outerHTML"
+                hx-post="{% url 'vehicles:add_to_business_entity' business_entity_id=business_entity.id vehicle_id=vehicles_without_entity.id %}"
+        >
+            {{ vehicles_without_entity.number }}, {{ vehicles_without_entity.brand }} {{ vehicles_without_entity.model }}
+        </button>
+    {% endfor %}
+    {% if is_paginated %}
+        <div class="btn-group d-flex flex-fill" role="group" aria-label="Pagination">
+            {% if page_obj.has_previous %}
+                <button
+                        type="button"
+                        class="btn btn-outline-secondary flex-fill btn-sm form-control mb-2"
+                        name="page"
+                        value="{{ page_obj.previous_page_number }}"
+                        hx-get="{% url 'vehicles:search_without_entities' business_entity.id %}"
+                        hx-target="#vehicleSearchList"
+                        hx-trigger="click"
+                        hx-include="[name='searchVehicles']"
+                        hx-swap="outerHTML">&laquo;
+                </button>
+            {% else %}
+                <button
+                        type="button"
+                        class="btn btn-outline-secondary flex-fill btn-sm form-control mb-2 disabled">&laquo;
+                </button>
+            {% endif %}
+            {% if page_obj.has_next %}
+                <button 
+                        type="button"
+                        class="btn btn-outline-secondary flex-fill btn-sm form-control mb-2"
+                        name="page"
+                        value="{{ page_obj.next_page_number }}"
+                        hx-get="{% url 'vehicles:search_without_entities' business_entity.id %}"
+                        hx-target="#vehicleSearchList"
+                        hx-trigger="click"
+                        hx-include="[name='searchVehicles']"
+                        hx-swap="outerHTML">&raquo;
+                </button>
+            {% else %}
+                <button
+                        type="button"
+                        class="btn btn-outline-secondary flex-fill btn-sm form-control mb-2 disabled">&laquo;
+                </button>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
