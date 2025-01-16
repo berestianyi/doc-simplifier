@@ -7,7 +7,7 @@
                    value="{{ vehicles_with_entity.number }}, {{ vehicles_with_entity.brand }} {{ vehicles_with_entity.model }}, {{ vehicles_with_entity.year }}"
                    readonly
                    style="cursor: pointer;"
-                   hx-get="{% url 'redirect_to_vehicle_detail' vehicles_with_entity.id %}"
+                   hx-get="{% url 'vehicles:redirect_to_detail' vehicles_with_entity.id %}"
                    hx-trigger="click">
             <button
                     class="btn btn-danger"
@@ -16,7 +16,7 @@
                     hx-target="#vehicleDetailList"
                     hx-trigger="click"
                     hx-swap="outerHTML"
-                    hx-post="{% url 'business_entities:remove_vehicle_from_business_entity' business_entity_id=business_entity.id vehicle_id=vehicles_with_entity.id %}"
+                    hx-post="{% url 'vehicles:remove_from_business_entity' business_entity_id=business_entity.id vehicle_id=vehicles_with_entity.id %}"
             >Видалити
             </button>
         </div>
@@ -25,7 +25,7 @@
         <button
                 class="btn btn-success flex-fill"
                 type="button"
-                hx-get="{% url 'business_entities:create_search_vehicle_form' business_entity.id %}"
+                hx-get="{% url 'vehicles:create_search_form' business_entity.id %}"
                 hx-target="#searchVehicle"
                 hx-swap="innerHTML"
                 hx-trigger="click"
