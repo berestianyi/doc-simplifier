@@ -10,7 +10,7 @@
                    type="search"
                    placeholder="Пошук по назві"
                    aria-label="Search"
-                   name="q"
+                   name="searchTemplates"
                    value="{{ query }}"
             >
             <button
@@ -19,12 +19,12 @@
                     hx-get="{% url 'contracts:search_contract_templates' business_entity.id %}"
                     hx-target="#templatesSearchList"
                     hx-trigger="click"
-                    hx-include="[name='q']"
+                    hx-include="[name='searchTemplates']"
                     hx-swap="outerHTML"
             >Пошук
             </button>
         </form>
-        {% include 'contract_templates/partials/templates_search_list.html' %}
+        {% include 'contract_templates/partials/search_list.html' %}
         <div class="d-flex justify-content-center">
             <button
                     class="btn btn-danger d-flex flex-fill justify-content-center"
@@ -32,7 +32,7 @@
                     hx-target="#documentDetailList"
                     hx-trigger="click"
                     hx-swap="outerHTML"
-                    hx-post="{% url 'contracts:create_document_detail_list' business_entity.id %}"
+                    hx-get="{% url 'contracts:create_document_detail_list' business_entity.id %}"
             >Скасувати
             </button>
         </div>

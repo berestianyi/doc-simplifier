@@ -3,23 +3,25 @@ from typing import List
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
+from django.utils.functional import cached_property
 
 from banks.forms import BankDetailForm
 from contracts.models import Contracts
+from documents.models import Documents
 from .forms import FOPCreateForm, TOVCreateForm, FOPDetailForm, TOVDetailForm, TOVUpdateForm, \
     FOPUpdateForm
-from .models import BusinessEntities
+from .models import BusinessEntities, BusinessEntitiesEnum
 from vehicles.models import Vehicles
 
 
 class HtmxTemplateMixin:
-    partial_template_name: str = ''
+    htmx_template_name: str = ''
 
     def get_template_names(self) -> List[str]:
-        if self.request.headers.get("HX-Request") == "true" and self.partial_template_name:
-            return [self.partial_template_name]
+        if self.request.headers.get("HX-Request") == "true" and self.htmx_template_name:
+            return [self.htmx_template_name]
         return [self.template_name]
 
 
@@ -92,9 +94,16 @@ class SearchFilterMixin:
         return self.filter_queryset(queryset)
 
 
+class BusinessEntityMixin:
+    @cached_property
+    def business_entity(self):
+        business_entity_id = self.kwargs.get("business_entity_id")
+        return get_object_or_404(BusinessEntities, pk=business_entity_id)
+
+
 def business_entities_list(request):
     business_entities = BusinessEntities.objects.all()
-    business_entities_choices = BusinessEntities.BusinessEntitiesEnum
+    business_entities_choices = BusinessEntitiesEnum
 
     search_query = request.GET.get('searchBusinessEntity', '').strip()
     entity_type = request.GET.get('selectBusinessEntity', '')
@@ -139,7 +148,7 @@ def create_fop_form(request):
 
         if fop_form.is_valid():
             fop = fop_form.save(commit=False)
-            fop.business_entity = BusinessEntities.BusinessEntitiesEnum.FOP
+            fop.business_entity = BusinessEntitiesEnum.FOP
             fop.save()
 
             response = HttpResponse("")
@@ -164,7 +173,7 @@ def create_tov_form(request):
     if request.method == 'POST':
         if tov_form.is_valid():
             tov = tov_form.save(commit=False)
-            tov.business_entity = BusinessEntities.BusinessEntitiesEnum.TOV
+            tov.business_entity = BusinessEntitiesEnum.TOV
             tov.save()
 
             response = HttpResponse("")
@@ -180,7 +189,7 @@ def create_tov_form(request):
 
 def business_entity_detail(request, business_entity_id):
     business_entity = BusinessEntities.objects.get(pk=business_entity_id)
-    if business_entity.business_entity == BusinessEntities.BusinessEntitiesEnum.FOP:
+    if business_entity.business_entity == BusinessEntitiesEnum.FOP:
         business_entity_form = FOPDetailForm(instance=business_entity)
     else:
         business_entity_form = TOVDetailForm(instance=business_entity)
@@ -192,21 +201,24 @@ def business_entity_detail(request, business_entity_id):
         .filter(vehiclelicences__business_entities=business_entity)
         .distinct()
     )
-    contracts = Contracts.objects.filter(business_entities_id=business_entity_id)
+
+    documents = Documents.objects.filter(
+            contract__business_entities=business_entity
+        )
 
     context = {
         'business_entity_form': business_entity_form,
         'business_entity': business_entity,
         'vehicles_with_entities': vehicles_with_entities,
         'bank_form': bank_form,
-        'contracts': contracts,
+        'documents': documents,
     }
     return render(request, 'business_entities/detail.html', context)
 
 
 def business_entity_detail_form(request, business_entity_id):
     business_entity = BusinessEntities.objects.get(pk=business_entity_id)
-    if business_entity.business_entity == BusinessEntities.BusinessEntitiesEnum.FOP:
+    if business_entity.business_entity == BusinessEntitiesEnum.FOP:
         business_entity_form = FOPDetailForm(instance=business_entity)
     else:
         business_entity_form = TOVDetailForm(instance=business_entity)
@@ -219,7 +231,7 @@ def business_entity_detail_form(request, business_entity_id):
 
 def business_entity_update_form(request, business_entity_id):
     business_entity = BusinessEntities.objects.get(pk=business_entity_id)
-    if business_entity.business_entity == BusinessEntities.BusinessEntitiesEnum.FOP:
+    if business_entity.business_entity == BusinessEntitiesEnum.FOP:
         business_entity_form = FOPUpdateForm(request.POST or None, instance=business_entity)
     else:
         business_entity_form = TOVUpdateForm(request.POST or None, instance=business_entity)
@@ -227,7 +239,7 @@ def business_entity_update_form(request, business_entity_id):
     if request.method == 'POST':
         if business_entity_form.is_valid():
             updated_business_entity = business_entity_form.save()
-            if business_entity.business_entity == BusinessEntities.BusinessEntitiesEnum.FOP:
+            if business_entity.business_entity == BusinessEntitiesEnum.FOP:
                 updated_business_entity_form = FOPDetailForm(instance=updated_business_entity)
             else:
                 updated_business_entity_form = TOVDetailForm(instance=updated_business_entity)

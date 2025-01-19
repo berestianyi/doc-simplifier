@@ -7,13 +7,11 @@ from contracts.models import Contracts, Templates
 class ContractTimeRangeForm(forms.Form):
     start_date = forms.DateField(
         label="Час початку договору",
-        initial=date.today,
         widget=forms.DateInput(attrs={"type": "date"}),
         required=True
     )
     end_date = forms.DateField(
         label="Час закінчення договору",
-        initial=lambda: date.today() + timedelta(days=365),
         widget=forms.DateInput(attrs={"type": "date"}),
         required=True
     )
@@ -27,6 +25,8 @@ class ContractTimeRangeForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['start_date'].initial = date.today().isoformat()
+        self.fields['end_date'].initial = (date.today() + timedelta(days=365)).isoformat()
 
         for field_name, field in self.fields.items():
             if 'class' not in field.widget.attrs:

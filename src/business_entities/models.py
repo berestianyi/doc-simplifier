@@ -2,11 +2,12 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 
-class BusinessEntities(models.Model):
+class BusinessEntitiesEnum(models.TextChoices):
+    TOV = "TOV", _("ТОВ")
+    FOP = "FOP", _("ФОП")
 
-    class BusinessEntitiesEnum(models.TextChoices):
-        TOV = "TOV", _("ТОВ")
-        FOP = "FOP", _("ФОП")
+
+class BusinessEntities(models.Model):
 
     business_entity = models.CharField(
         max_length=3,

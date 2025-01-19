@@ -1,0 +1,17 @@
+<div id="documentForm">
+    {% csrf_token %}
+    {{ time_range_form.non_field_errors }}
+    {% for field in documents_form %}
+        <div class="d-flex flex-row flex-wrap flex-fill mb-1" id="{{ field.id_for_label }}_div">
+            <label for="{{ field.id_for_label }}" class="col-form-label fw-bold me-2">{{ field.label }}</label>
+            <div class="d-flex flex-fill" style="min-width: 300px">
+                {{ field }}
+            </div>
+            {% if field.errors %}
+                <div class="text-danger">
+                    {{ field.errors }}
+                </div>
+            {% endif %}
+        </div>
+    {% endfor %}
+</div>

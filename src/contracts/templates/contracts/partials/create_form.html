@@ -25,17 +25,15 @@
                     <button
                             class="btn btn-danger m-1 d-flex flex-fill justify-content-center"
                             type="button"
-                            hx-target="#createContractForm"
-                            hx-trigger="click"
+                            hx-target="#documentDetailList"
                             hx-swap="outerHTML"
-                            hx-post="{% url 'contracts:create_document_detail_list' business_entity.id %}"
+                            hx-get="{% url 'contracts:create_document_detail_list' business_entity.id %}"
                     >Скасувати
                     </button>
                     <button
                             class="btn btn-success m-1 d-flex flex-fill justify-content-center"
                             type="button"
-                            hx-target="#createContractForm"
-                            hx-trigger="click"
+                            hx-target="#documentDetailList"
                             hx-swap="outerHTML"
                             hx-post="{% url 'contracts:create_contract' business_entity.id template.id %}"
                     >
@@ -58,7 +56,7 @@
         const today = new Date();
         const currentYear = today.getFullYear();
 
-        const endOfYear = new Date(currentYear, 11, 31);
+        const endOfYear = new Date(currentYear, 11, 32);
         document.getElementById('id_end_date').value = endOfYear.toISOString().split('T')[0];
     });
 </script>
