@@ -189,21 +189,18 @@ class VehicleRedirectToCreateView(View):
         return response
 
 
-class CreateSearchVehicleFormView(VehicleMixin, ListView):
+class CreateSearchVehicleFormView(BusinessEntityMixin, VehicleMixin, ListView):
     template_name = 'vehicles/partials/search_form.html'
     context_object_name = 'vehicles_without_entities'
     paginate_by = 5
 
     def get_queryset(self):
-        business_entity_id = self.kwargs.get('business_entity_id')
-        business_entity = get_object_or_404(BusinessEntities, pk=business_entity_id)
-        queryset = self.vehicles_without_business_entities(business_entity)
+        queryset = self.vehicles_without_business_entities(self.business_entity)
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        business_entity_id = self.kwargs.get('business_entity_id')
-        context['business_entity'] = get_object_or_404(BusinessEntities, pk=business_entity_id)
+        context['business_entity'] = self.business_entity
         return context
 
 
