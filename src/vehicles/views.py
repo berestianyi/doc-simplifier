@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.views.generic import ListView, View
 
 from business_entities.models import BusinessEntities
-from business_entities.views import HtmxTemplateMixin, SortOrderMixin, SearchMixin
+from business_entities.views import HtmxTemplateMixin, SortOrderMixin, SearchMixin, BusinessEntityMixin
 from .forms import (
     VehiclesCreateForm,
     VehiclesUpdateForm,
@@ -43,7 +43,7 @@ class VehicleMixin:
 class VehiclesListView(HtmxTemplateMixin, SortOrderMixin, SearchMixin, ListView):
     model = Vehicles
     template_name = 'vehicles/list.html'
-    partial_template_name = 'vehicles/partials/list_fields.html'
+    htmx_template_name = 'vehicles/partials/list_fields.html'
     context_object_name = 'vehicles'
     paginate_by = 2
     search_param_name = 'searchVehicles'
@@ -108,7 +108,7 @@ class CreateVehicleView(View):
 
 class VehicleAndLicenceDetailView(VehicleMixin, HtmxTemplateMixin, View):
     template_name = 'vehicles/CRUD.html'
-    partial_template_name = 'vehicles/partials/CRUD_form.html'
+    htmx_template_name = 'vehicles/partials/CRUD_form.html'
 
     def get(self, request, vehicle_id):
         vehicle, licence = self.get_vehicle_and_licence_objects(vehicle_id)
@@ -207,7 +207,7 @@ class CreateSearchVehicleFormView(VehicleMixin, ListView):
         return context
 
 
-class SearchVehiclesWithoutEntitiesListView(SearchMixin, ListView):
+class SearchVehiclesWithoutEntitiesListView(VehicleMixin, BusinessEntityMixin, SearchMixin, ListView):
     model = Vehicles
     template_name = 'vehicles/partials/search_list.html'
     context_object_name = 'vehicles_without_entities'
@@ -216,24 +216,13 @@ class SearchVehiclesWithoutEntitiesListView(SearchMixin, ListView):
     search_fields: List[str] = ['number']
 
     def get_queryset(self):
-        queryset = super().get_queryset()
-        business_entity_id = self.kwargs.get('business_entity_id')
-        business_entity = get_object_or_404(BusinessEntities, pk=business_entity_id)
-
-        owned_vehicle_ids = VehicleLicences.objects.filter(
-            business_entities=business_entity
-        ).values_list('vehicle_id', flat=True)
-
-        queryset = queryset.exclude(id__in=owned_vehicle_ids)
+        queryset = self.vehicles_without_business_entities(self.business_entity)
         queryset = self.search_queryset(queryset)
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        business_entity_id = self.kwargs.get('business_entity_id')
-        business_entity = get_object_or_404(BusinessEntities, pk=business_entity_id)
-
-        context['business_entity'] = business_entity
+        context['business_entity'] = self.business_entity
         context['query'] = self.get_search_query()
 
         return context

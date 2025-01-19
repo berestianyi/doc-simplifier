@@ -7,18 +7,29 @@ from django.forms import model_to_dict
 from django.http import Http404, FileResponse, HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy, reverse
-from django.views.generic import ListView, View, CreateView, UpdateView
+from django.utils.functional import cached_property
+from django.views.generic import ListView, View, CreateView, UpdateView, TemplateView
 
 from docx import Document
 from python_docx_replace import docx_replace
 
 from business_entities.models import BusinessEntities
+from business_entities.views import BusinessEntityMixin
 from config import settings
+from documents.models import Documents
 from vehicles.models import Vehicles
+from vehicles.views import VehicleMixin
 from .forms import ContractTimeRangeForm, TemplatesForm
 from .models import Templates, Contracts
 
 morph = pymorphy3.MorphAnalyzer(lang='uk')
+
+
+class TemplateMixin:
+    @cached_property
+    def template_obj(self):
+        template_id = self.kwargs.get("template_id")
+        return get_object_or_404(Templates, pk=template_id)
 
 
 class ReplacementManager:
@@ -47,18 +58,18 @@ class ReplacementManager:
         self.vehicles = vehicles
 
     @classmethod
-    def upper_or_empty_str(cls, text: str) -> str:
-        if text:
-            return text.upper()
+    def _model_to_dict_or_empty(cls, instance, fields, default="") -> dict:
+        if instance is not None:
+            return model_to_dict(instance, fields=fields)
+        return {field: default for field in fields}
 
-        return ""
+    @classmethod
+    def upper_or_empty_str(cls, text: str) -> str:
+        return text.upper() if text else ""
 
     @classmethod
     def title_or_empty_str(cls, text: str) -> str:
-        if text:
-            return text.title()
-
-        return ""
+        return text.title() if text else ""
 
     @classmethod
     def to_genitive(cls, full_name: str) -> str:
@@ -86,7 +97,6 @@ class ReplacementManager:
                 return 'яка'
             else:
                 return 'що'
-
         return ""
 
     def name_crusher(self, full_name: str) -> dict:
@@ -123,32 +133,35 @@ class ReplacementManager:
             "expire_year": str(self.expire_date.year)
         }
 
-    def document_number_generator(self) -> dict:
+    def document_number_generator(self, business_entity_id) -> dict:
         return {
-            "document_number": f"{self.start_date.day:02d}/{self.start_date.month}",
+            "document_number": f"{self.start_date.day:02d}/{self.start_date.month}{business_entity_id}",
         }
 
     def replacements_generator(self) -> dict:
-        bank_dict = model_to_dict(self.bank, fields=[
-            "name",
-            "mfo",
-        ])
 
-        business_entity_dict = model_to_dict(self.business_entity, fields=[
-            "business_entity",
-            "edrpou",
-            "company_name",
-            "director_name",
-            "address",
-            "email",
-            "phone",
-            "iban",
-        ])
+        bank_dict = self._model_to_dict_or_empty(
+            self.bank,
+            fields=["name", "mfo"]
+        )
+        business_entity_dict = self._model_to_dict_or_empty(
+            self.business_entity,
+            fields=[
+                "business_entity",
+                "edrpou",
+                "company_name",
+                "director_name",
+                "address",
+                "email",
+                "phone",
+                "iban",
+            ]
+        )
 
         name_crasher_dict = self.name_crusher(business_entity_dict.get("director_name"))
         upper_company_name_dict = self.upper_company_name(business_entity_dict.get("company_name"))
         date_dict = self.date_dict_generator()
-        document_number_dict = self.document_number_generator()
+        document_number_dict = self.document_number_generator(self.business_entity.id)
 
         merged_dict = {
             **bank_dict,
@@ -218,86 +231,84 @@ class WordDocManager:
         return output_path
 
 
-def create_contract_templates_search_form(request, business_entity_id):
-    business_entity = get_object_or_404(BusinessEntities, pk=business_entity_id)
-    templates = Templates.objects.all()
+class ContractTemplatesSearchFormView(BusinessEntityMixin, ListView):
+    model = Templates
+    template_name = 'contract_templates/partials/search_form.html'
+    context_object_name = 'templates'
+    paginate_by = 5
 
-    return render(
-        request,
-        'contract_templates/partials/templates_search_form.html',
-        {
-            'templates': templates,
-            'business_entity': business_entity,
-        }
-    )
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['business_entity'] = self.business_entity
+        return context
 
 
-def search_contract_templates(request, business_entity_id):
-    business_entity = get_object_or_404(BusinessEntities, pk=business_entity_id)
-    query = request.GET.get('q', '')
+class ContractTemplatesSearchView(BusinessEntityMixin, ListView):
+    model = Templates
+    template_name = 'contract_templates/partials/search_list.html'
+    context_object_name = 'templates'
+    paginate_by = 5
 
-    templates = (
-        Templates.objects
-        .filter(
-            Q(name__icontains=query)
+    def get_queryset(self):
+        query = self.request.GET.get('searchContracts', '')
+        return Templates.objects.filter(Q(name__icontains=query))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['query'] = self.request.GET.get('searchContracts', '')
+        context['business_entity'] = self.business_entity
+        return context
+
+
+class ContractDocumentDetailListView(BusinessEntityMixin, TemplateView):
+    template_name = 'documents/detail_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        contracts = Documents.objects.filter(
+            contract__business_entities=self.business_entity
         )
-    )
-
-    return render(
-        request,
-        'contract_templates/partials/templates_search_list.html',
-        {
-            'templates': templates,
-            'query': query,
-            'business_entity': business_entity,
-        }
-    )
-
-
-def create_document_detail_list(request, business_entity_id):
-    business_entity = get_object_or_404(BusinessEntities, pk=business_entity_id)
-    contracts = Contracts.objects.filter(business_entities_id=business_entity_id)
-
-    return render(
-        request,
-        'contracts/detail.html',
-        {
-            'business_entity': business_entity,
+        context.update({
+            'business_entity': self.business_entity,
             'contracts': contracts,
-        }
-    )
+        })
+        return context
 
 
-def create_contract(request, business_entity_id, template_id):
-    business_entity = get_object_or_404(BusinessEntities, pk=business_entity_id)
-    template = get_object_or_404(Templates, pk=template_id)
-    bank = business_entity.bank
-    if request.method == "POST":
+class ContractCreateView(BusinessEntityMixin, VehicleMixin, TemplateMixin, TemplateView):
+    template_name = "contracts/partials/create_form.html"
+
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        context['time_range_form'] = ContractTimeRangeForm()
+        context['business_entity'] = self.business_entity
+        context['template'] = self.template_obj
+        return self.render_to_response(context)
+
+    def post(self, request, *args, **kwargs):
         time_range_form = ContractTimeRangeForm(request.POST)
         if time_range_form.is_valid():
-            vehicles_with_entities = (
-                Vehicles.objects
-                .filter(vehiclelicences__business_entities=business_entity)
-                .distinct()
-            )
+            vehicles_with_entities = self.vehicles_with_business_entity(business_entity=self.business_entity)
+
             start_date = time_range_form.cleaned_data["start_date"]
             expire_date = time_range_form.cleaned_data["end_date"]
 
             contract = Contracts.objects.create(
-                business_entities=business_entity,
-                template=template,
+                business_entities=self.business_entity,
+                template=self.template_obj,
                 start_date=start_date,
                 end_date=expire_date,
             )
+            contract.save()
 
             replacement_manager = ReplacementManager(
                 start_date=start_date,
                 expire_date=expire_date,
-                business_entity=business_entity,
-                bank=bank,
+                business_entity=self.business_entity,
+                bank=self.business_entity.bank,
                 vehicles=vehicles_with_entities,
             )
-            word_manager = WordDocManager(template_path=template.path.path)
+            word_manager = WordDocManager(template_path=self.template_obj.path.path)
 
             replacement_dict = replacement_manager.replacements_generator()
             cars_dict = replacement_manager.cars_info_generator()
@@ -305,76 +316,75 @@ def create_contract(request, business_entity_id, template_id):
             word_manager.replace_placeholders(replacement_dict)
             word_manager.add_car_info_to_table(cars_dict)
 
-            filename = word_manager.create_output_filename(template, business_entity, contract.id)
+            filename = word_manager.create_output_filename(
+                self.template_obj,
+                self.business_entity,
+                contract.id
+            )
             output = word_manager.save_word_file(filename=filename)
 
-            contract.name = filename
-            contract.path = output
-            contract.save()
+            document_entity = Documents.objects.create(
+                name=filename,
+                path=output,
+                contract=contract
+            )
+            document_entity.save()
+            documents = Documents.objects.filter(contract__business_entities=self.business_entity)
 
-            contracts = Contracts.objects.filter(business_entities_id=business_entity_id)
-
-            return render(request, "contracts/detail.html", {
+            context = {
                 "time_range_form": time_range_form,
-                'business_entity': business_entity,
-                'template': template,
-                'contracts': contracts,
-            })
-    else:
-        time_range_form = ContractTimeRangeForm()
+                "business_entity": self.business_entity,
+                "template": self.template_obj,
+                "documents": documents,
+            }
+            return render(request, "documents/detail_list.html", context)
 
-    return render(request, "contracts/partials/create_form.html", {
-        'time_range_form': time_range_form,
-        'business_entity': business_entity,
-        'template': template,
-    })
+        context = self.get_context_data(**kwargs)
+        context['time_range_form'] = time_range_form
+        return self.render_to_response(context)
 
 
 class ContractTemplatesListView(ListView):
     model = Templates
     template_name = 'contract_templates/list.html'
     context_object_name = 'templates'
-    paginate_by = 10
+    paginate_by = 8
 
 
-def create_template(request):
-    if request.method == 'POST':
-        form = TemplatesForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            return redirect('contracts:templates')
-    else:
-        form = TemplatesForm()
+class TemplateCreateView(CreateView):
+    model = Templates
+    form_class = TemplatesForm
+    template_name = 'contract_templates/create.html'
+    success_url = reverse_lazy('contracts:templates')
+    pk_url_kwarg = 'template_id'
 
-    context = {
-        'template_form': form,
-    }
-    return render(request, 'contract_templates/create.html', context)
-
-
-def update_template(request, template_id):
-    template = get_object_or_404(Templates, pk=template_id)
-    if request.method == 'POST':
-        form = TemplatesForm(request.POST, request.FILES, instance=template)
-        if form.is_valid():
-            form.save()
-            return redirect('contracts:templates')
-
-    else:
-        form = TemplatesForm(instance=template)
-
-    context = {
-        'template_form': form,
-        'template': template,
-    }
-    return render(request, 'contract_templates/update.html', context)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['template_form'] = context['form']
+        context['template'] = self.object
+        return context
 
 
-def redirect_to_templates_list(request):
-    response = HttpResponse("")
-    redirect_url = reverse("contracts:templates")
-    response["HX-Redirect"] = redirect_url
-    return response
+class TemplateUpdateView(UpdateView):
+    model = Templates
+    form_class = TemplatesForm
+    template_name = 'contract_templates/update.html'
+    success_url = reverse_lazy('contracts:templates')
+    pk_url_kwarg = 'template_id'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['template_form'] = context['form']
+        context['template'] = self.object
+        return context
+
+
+class TemplatesListRedirectView(View):
+    def get(self, request, *args, **kwargs):
+        response = HttpResponse("")
+        redirect_url = reverse("contracts:templates")
+        response["HX-Redirect"] = redirect_url
+        return response
 
 
 class TemplatesDownloadView(View):
@@ -384,6 +394,10 @@ class TemplatesDownloadView(View):
             raise Http404("File not found.")
         file_path = template.path.path
         if os.path.exists(file_path):
-            return FileResponse(open(file_path, 'rb'), as_attachment=True, filename=os.path.basename(file_path))
+            return FileResponse(
+                open(file_path, 'rb'),
+                as_attachment=True,
+                filename=os.path.basename(file_path)
+            )
         else:
             raise Http404("File not found.")
