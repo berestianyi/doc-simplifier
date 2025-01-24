@@ -127,7 +127,7 @@ def business_entities_list(request):
         )
 
     business_entities = business_entities.order_by(sort_order)
-    paginator = Paginator(business_entities, 2)
+    paginator = Paginator(business_entities, 10)
     page_obj = paginator.get_page(page_number)
 
     context = {

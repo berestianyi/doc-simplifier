@@ -1,0 +1,24 @@
+{% extends 'templates/base.html' %}
+{% load static %}
+
+{% block title %}
+    <title>Добування тексту</title>
+{% endblock %}
+
+{% block body %}
+    <div class="d-flex flex-column flex-wrap">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <label for="formFileLg" class="form-label">Виберіть файл з якого, хочете добути текст</label>
+            {{ form.pdf_file }}
+            {% if field.errors %}
+                <div class="text-danger">
+                    {{ field.errors }}
+                </div>
+            {% endif %}
+        <button type="submit" class="btn btn-success">Генерувати СГ</button>
+        </form>
+    </div>
+{% endblock %}
+{% block static %}
+{% endblock %}
