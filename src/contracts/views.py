@@ -11,6 +11,7 @@ from django.utils.functional import cached_property
 from django.views.generic import ListView, View, CreateView, UpdateView, TemplateView
 
 from docx import Document
+from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 from python_docx_replace import docx_replace
 
 from business_entities.models import BusinessEntities
@@ -71,20 +72,20 @@ class ReplacementManager:
     def title_or_empty_str(cls, text: str) -> str:
         return text.title() if text else ""
 
-    @classmethod
-    def to_genitive(cls, full_name: str) -> str:
-        tokens = full_name.split()
-        result_tokens = []
-
-        for token in tokens:
-            parsed = morph.parse(token)
-            best_parse = parsed[0]
-            gent_form = best_parse.inflect({'gent'})
-            if gent_form:
-                result_tokens.append(gent_form.word)
-            else:
-                result_tokens.append(token)
-        return " ".join(result_tokens)
+    # @classmethod
+    # def to_genitive(cls, full_name: str) -> str:
+    #     tokens = full_name.split()
+    #     result_tokens = []
+    #
+    #     for token in tokens:
+    #         parsed = morph.parse(token)
+    #         best_parse = parsed[0]
+    #         gent_form = best_parse.inflect({'gent'})
+    #         if gent_form:
+    #             result_tokens.append(gent_form.word)
+    #         else:
+    #             result_tokens.append(token)
+    #     return " ".join(result_tokens)
 
     @classmethod
     def guess_gender_pronoun(cls, name: str) -> str:
@@ -114,8 +115,8 @@ class ReplacementManager:
             "upper_middle_name": self.upper_or_empty_str(middle_name),
             "upper_director_name": self.upper_or_empty_str(full_name),
             "gender_pronoun": self.guess_gender_pronoun(first_name),
-            "genitive_director_name": self.to_genitive(full_name),
-            "upper_genitive_director_name": self.upper_or_empty_str(self.to_genitive(full_name)),
+            # "genitive_director_name": self.to_genitive(full_name),
+            # "upper_genitive_director_name": self.upper_or_empty_str(self.to_genitive(full_name)),
         }
 
     def upper_company_name(self, company_name: str) -> dict:
@@ -191,6 +192,22 @@ class WordDocManager:
             **replacement,
         )
 
+    def find_font_style(self):
+        doc = self.doc
+        if doc.paragraphs:
+            first_paragraph = doc.paragraphs[0]
+            for run in first_paragraph.runs:
+                if len(run.text) > 0:
+                    font_name = run.font.name
+
+                    if font_name is None and run.style:
+                        font_name = run.style.font.name
+
+                    if font_name is None and first_paragraph.style:
+                        font_name = first_paragraph.style.font.name
+
+                    return font_name
+
     @classmethod
     def find_table_index_by_header(cls, doc) -> int:
         search_words = ["Марка, модель", "Реєстраційний номер"]
@@ -213,6 +230,15 @@ class WordDocManager:
             row_cells[1].paragraphs[0].add_run(str(car[0]) + ", " + str(car[1])).bold = True
             row_cells[2].paragraphs[0].add_run(str(car[2])).bold = True
             row_cells[3].paragraphs[0].add_run(str(car[3])).bold = True
+
+        font_name = self.find_font_style()
+
+        for row in table.rows:
+            for cell in row.cells:
+                for paragraph in cell.paragraphs:
+                    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+                    for run in paragraph.runs:
+                        run.font.name = font_name
 
     @staticmethod
     def create_output_filename(template: Templates, business_entity: BusinessEntities, contract_index) -> str:
