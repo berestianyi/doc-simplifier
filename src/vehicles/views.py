@@ -45,7 +45,7 @@ class VehiclesListView(HtmxTemplateMixin, SortOrderMixin, SearchMixin, ListView)
     template_name = 'vehicles/list.html'
     htmx_template_name = 'vehicles/partials/list_fields.html'
     context_object_name = 'vehicles'
-    paginate_by = 2
+    paginate_by = 10
     search_param_name = 'searchVehicles'
     search_fields = [
         'vin_code',
