@@ -76,15 +76,47 @@
                 </div>
             </div>
         {% endif %}
-        <div class="modal fade" id="instruction" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+        <div class="modal fade" id="instruction" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+             aria-hidden="true">
             <div class="modal-dialog modal-dialog-scrollable">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h1 class="modal-title fs-5" id="staticBackdropLabel">Інструкція до створення шаблону документа</h1>
+                        <h1 class="modal-title fs-5" id="staticBackdropLabel">Інструкція до створення шаблону
+                            документа</h1>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <p></p>
+                        <h6>Перш за все потрібен word-документ формату .docx</h6>
+                        <h6>Далі Вам потрібно замінити всі слова, які ви хочете щоб заміщювались в документі, на вже
+                            підготовленні шаблонні-слова:</h6>
+                        <p>${last_name} -- Прізвище</p>
+                        <p>${upper_last_name} -- Прізвище великими буквами</p>
+                        <p>${first_name} -- Ім'я</p>
+                        <p>${upper_first_name} -- Ім'я великими буквами</p>
+                        <p>${middle_name} -- По батькові</p>
+                        <p>${upper_middle_name} -- По батькові великими буквами</p>
+                        <p>${upper_director_name} -- ПІБ директора великими буквами</p>
+                        <p>${company_name} -- Назва компанії</p>
+                        <p>${upper_company_name} -- Назва компанії великими буквами</p>
+                        <p>${gender_pronoun} -- яка/який</p>
+                        <p>${address} -- Адреса</p>
+                        <p>${upper_address} -- Адреса великими буквами</p>
+                        <p>${email} -- Email</p>
+                        <p>${upper_email} -- Email великими буквами</p>
+                        <p>${phone} -- Телефон</p>
+                        <p>${upper_phone} -- Телефон великими буквами</p>
+                        <p>${iban} -- IBAN</p>
+                        <p>${mfo} -- МФО банку</p>
+                        <p>${start_day} -- День початку дії договору</p>
+                        <p>${start_month} -- Місяць початку дії договору (українською)</p>
+                        <p>${start_year} -- Рік початку дії договору</p>
+                        <p>${formatted_start_date} -- Дата початку дії договору у форматі "День Місяць Рік"</p>
+                        <p>${expire_day} -- День закінчення дії договору</p>
+                        <p>${expire_month} -- Місяць закінчення дії договору (українською)</p>
+                        <p>${expire_year} -- Рік закінчення дії договору</p>
+                        <p>${formatted_expire_date} -- Дата закінчення дії договору у форматі "День Місяць Рік"</p>
+                        <p>${document_number} -- Номер документа</p>
+                        <p>${vehicles} -- Інформація про транспортні засоби (список)</p>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрити</button>

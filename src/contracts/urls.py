@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from documents.views import DocumentsDownloadView
 
 app_name = 'contracts'
 
@@ -14,5 +15,6 @@ urlpatterns = [
     path('templates/create/', views.TemplateCreateView.as_view(), name='create_template'),
     path('templates/update/<int:template_id>/', views.TemplateUpdateView.as_view(), name='update_template'),
     path('templates/download/<int:pk>/', views.TemplatesDownloadView.as_view(), name='templates_download'),
+    path('documents/download/<int:pk>/', DocumentsDownloadView.as_view(), name='documents_download'),
     path('redirect-to-templates/', views.TemplatesListRedirectView.as_view(), name='redirect_to_templates_list'),
 ]

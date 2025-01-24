@@ -13,22 +13,24 @@
     <div>
         {% for document in documents %}
             <div class="input-group mb-1">
-                <input type="text"
-                       class="form-control"
-                       aria-describedby="button-addon2"
-                       value="{{ document.name }}"
-                       readonly
-                       style="cursor: pointer;"
-                       hx-trigger="click">
-                <button
-                        class="btn btn-danger"
+                    <input type="text"
+                           class="form-control"
+                           aria-describedby="button-addon2"
+                           value="{{ document.name }}"
+                           readonly
+                           style="cursor: pointer;"
+                           hx-trigger="click"
+                    >
+                <a
+                        href="{% url 'contracts:documents_download' document.id %}"
+                        class="btn btn-success"
                         type="button"
                         id="button-addon2"
-                        hx-target="#documentDetailList"
-                        hx-trigger="click"
-                        hx-swap="outerHTML"
-                >Видалити
-                </button>
+{#                        hx-target="#documentDetailList"#}
+{#                        hx-trigger="click"#}
+{#                        hx-swap="outerHTML"#}
+                >Скачати
+                </a>
             </div>
         {% endfor %}
     </div>

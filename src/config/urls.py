@@ -7,4 +7,6 @@ urlpatterns = [
     path("vehicles/", include("vehicles.urls", namespace='vehicles')),
     path('banks/', include('banks.urls', namespace='banks')),
     path('contracts/', include('contracts.urls', namespace='contracts')),
+    path('users/', include('users.urls', namespace='users')),
+    path('documents/', include('documents.urls', namespace='documents')),
 ]
