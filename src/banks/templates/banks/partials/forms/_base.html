@@ -1,0 +1,12 @@
+<div class="d-flex flex-column flex-fill" id="bankForm">
+    <form class="d-flex flex-column">
+        {% csrf_token %}
+        <div class="d-flex flex-column justify-content-center mb-3">
+            {% include 'banks/partials/forms/_form.html' %}
+        </div>
+        <div class="d-flex flex-row justify-content-start">
+            {% block crud_buttons %}
+            {% endblock %}
+        </div>
+    </form>
+</div>
