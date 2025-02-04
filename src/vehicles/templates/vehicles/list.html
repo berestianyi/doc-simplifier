@@ -33,12 +33,12 @@
                             hx-trigger="change"
                             hx-include="#vehicleListFilterForm"
                     >
-                        <option selected value="created_at">Від нових до старих</option>
-                        <option value="-created_at">Від старих до нових</option>
+                        <option selected value="-created_at">Від нових до старих</option>
+                        <option value="created_at">Від старих до нових</option>
                     </select>
                 </div>
             </div>
         </form>
-        {% include 'vehicles/partials/list_fields.html' %}
+        {% include 'vehicles/partials/lists/_fields.html' %}
     </div>
 {% endblock %}

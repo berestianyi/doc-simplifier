@@ -10,14 +10,14 @@
         <form
                 id="businessEntityListFilterForm"
                 method="GET"
-                hx-get="{% url 'business_entities:business_entities' %}"
+                hx-get="{% url 'business_entities:list' %}"
                 hx-target="#businessEntityListContainer"
                 hx-swap="outerHTML"
                 hx-include="#businessEntityListFilterForm"
         >
             <div class="d-flex flex-row flex-wrap justify-content-center">
                 <div class="col-auto m-3">
-                    <a type="button" class="btn btn-success fw-bold" href="{% url 'business_entities:create_fop_form' %}">
+                    <a type="button" class="btn btn-success fw-bold" href="{% url 'business_entities:create_fop' %}">
                         Додати Суб'єкт господарювання
                     </a>
                 </div>
@@ -29,7 +29,7 @@
                 </div>
                 <div class="col-auto m-3">
                     <select class="form-select" name="selectBusinessEntity"
-                            hx-get="{% url 'business_entities:business_entities' %}"
+                            hx-get="{% url 'business_entities:list' %}"
                             hx-target="#businessEntityListContainer"
                             hx-swap="outerHTML"
                             hx-trigger="change"
@@ -42,18 +42,18 @@
                 </div>
                 <div class="col-auto my-3">
                     <select class="form-select" name="selectDate"
-                            hx-get="{% url 'business_entities:business_entities' %}"
+                            hx-get="{% url 'business_entities:list' %}"
                             hx-target="#businessEntityListContainer"
                             hx-swap="outerHTML"
                             hx-trigger="change"
                             hx-include="#businessEntityListFilterForm"
                     >
-                        <option selected value="created_at">Від нових до старих</option>
-                        <option value="-created_at">Від старих до нових</option>
+                        <option selected value="-created_at">Від нових до старих</option>
+                        <option value="created_at">Від старих до нових</option>
                     </select>
                 </div>
             </div>
         </form>
-        {% include 'business_entities/partials/list_fields.html' %}
+        {% include 'business_entities/partials/lists/_fields.html' %}
     </div>
 {% endblock %}
