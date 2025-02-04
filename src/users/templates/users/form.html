@@ -10,7 +10,7 @@
 {% endif %}
 {{ form.non_field_errors }}
 {% for field in form %}
-    <div class="d-flex flex-row flex-wrap flex-fill mb-1" id="{{ field.id_for_label }}_div">
+    <div class="d-flex flex-column flex-wrap flex-fill mb-1" id="{{ field.id_for_label }}_div">
         <label for="{{ field.id_for_label }}" class="col-form-label fw-bold me-2">{{ field.label }}</label>
         <div class="d-flex flex-fill" style="width: 350px">
             {{ field }}
