@@ -11,11 +11,11 @@
                             class="btn btn-warning flex-fill"
                             hx-swap="outerHTML"
                             hx-target="#template{{ template.id }}"
-                            hx-get="{% url 'contracts:update_template' template.id %}"
+                            hx-get="{% url 'templates:update' template.id %}"
                     >Редагувати
                     </button>
                     <a class="btn btn-outline-secondary ms-2 flex-fill"
-                       href="{% url 'contracts:templates_download' template.id %}">Завантажити</a>
+                       href="{% url 'templates:download' template.id %}">Завантажити</a>
                 </div>
             </div>
         </div>
