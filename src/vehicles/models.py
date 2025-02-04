@@ -19,7 +19,7 @@ class Vehicles(models.Model):
         TRUCK = "Truck", _("Вантажний автомобіль")
         BUS = "Bus", _("Автобус")
 
-    vin_code = models.CharField(max_length=100, unique=True, blank=True, null=True)
+    vin_code = models.CharField(max_length=100, unique=False, blank=True, null=True)
     vehicle_type = models.CharField(choices=VehicleTypeEnum.choices, blank=True, null=True)
     number = models.CharField(max_length=100, unique=True, blank=True, null=True)
     brand = models.CharField(max_length=100, blank=True, null=True)
