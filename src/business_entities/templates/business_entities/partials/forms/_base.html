@@ -3,7 +3,7 @@
 <form class="d-flex flex-column flex-wrap" style="min-width: 350px" method="post" id="businessEntityForm">
 {% csrf_token %}
     <h3>{{ business_entity.company_name|make_short_name:business_entity.director_name }}</h3>
-    {% include 'business_entities/partials/forms/_form.html' %}
+    {% include 'business_entities/partials/forms/form.html' %}
     {% block crud_buttons %}
     {% endblock %}
 </form>
