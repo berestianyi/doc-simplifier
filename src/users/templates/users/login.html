@@ -8,7 +8,7 @@
 {% block base %}
     <div class="d-flex flex-column min-vh-100 justify-content-center align-items-center">
         <div class="d-flex flex-column flex-wrap" style="width: 300px">
-            <form method="POST" action="{% url 'users:user_login' %}">
+            <form method="POST" action="{% url 'users:login' %}">
                 {% csrf_token %}
                 {% include 'users/form.html' %}
                 <div class="d-flex flex-wrap">
