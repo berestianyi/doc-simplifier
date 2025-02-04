@@ -16,24 +16,23 @@
                 <div class="navbar-collapse collapse" id="navbarCollapse" style="">
                     <ul class="navbar-nav me-auto mb-2 mb-md-0">
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'business_entities:business_entities' %}">Суб'єкти
+                            <a class="nav-link" href="{% url 'business_entities:list' %}">Суб'єкти
                                 господарювання</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'vehicles:list' %}">Транспортні засоби</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'contracts:templates' %}">Документи</a>
+                            <a class="nav-link" href="{% url 'templates:list' %}">Документи</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'documents:pdf-extract' %}">Добування тексту</a>
                         </li>
                     </ul>
                     <div class="d-flex flex-row">
-                        <button type="button" class="btn btn-outline-info me-2">
-                            Кирил Ольховський
+                        <a href="{% url 'users:profile' %}" type="button" class="btn btn-outline-info me-2">
                             <span id="userIcon">{% include 'tools/icons/user.html' %}</span>
-                        </button>
+                        </a>
                         <button type="button" id="toggleColorModeButton" class="btn btn-outline-warning ms-4 me-2">
                             <span id="sunIcon">{% include 'tools/icons/sun.html' %}</span>
                             <span id="moonIcon" style="display: none;">{% include 'tools/icons/moon.html' %}</span>
