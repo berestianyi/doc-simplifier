@@ -18,9 +18,9 @@ from dotenv import load_dotenv
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 AUTH_USER_MODEL = 'users.User'
-LOGIN_URL = 'users:user_login'
+LOGIN_URL = 'users:login'
 LOGIN_REDIRECT_URL = 'home_page'
-LOGOUT_REDIRECT_URL = 'users:user_login'
+LOGOUT_REDIRECT_URL = 'users:login'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
