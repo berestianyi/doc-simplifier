@@ -1,0 +1,32 @@
+{% extends 'business_entities/partials/forms/_base.html' %}
+
+{% block crud_buttons %}
+    <div class="d-flex flex-row flex-wrap my-3">
+        <button
+                type="submit"
+                class="btn btn-secondary mx-3 my-1"
+                hx-get="{% url 'business_entities:detail' business_entity.id %}"
+                hx-target="#businessEntityForm"
+                hx-swap="outerHTML"
+
+        >
+            Скасувати зміни
+        </button>
+        <button
+                type="button"
+                class="btn btn-danger mx-3 my-1"
+                hx-post="{% url 'business_entities:delete' business_entity.id %}"
+        >
+            Видалити ТЗ
+        </button>
+        <button
+                type="button"
+                class="btn btn-success mx-3 my-1"
+                hx-post="{% url 'business_entities:update' business_entity.id %}"
+                hx-target="#businessEntityForm"
+                hx-swap="outerHTML"
+        >
+            Застосувати зміни
+        </button>
+    </div>
+{% endblock %}

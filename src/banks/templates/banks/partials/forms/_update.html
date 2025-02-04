@@ -1,0 +1,34 @@
+{% extends 'banks/partials/forms/_base.html' %}
+
+{% block crud_buttons %}
+    <button
+            class="btn btn-secondary me-3"
+            type="button"
+            hx-target="#bankForm"
+            hx-trigger="click"
+            hx-swap="outerHTML"
+            hx-get="{% url 'banks:detail' business_entity.id %}"
+    >
+        Скасувати
+    </button>
+    <button
+            class="btn btn-danger me-3"
+            type="button"
+            hx-target="#bankForm"
+            hx-trigger="click"
+            hx-swap="outerHTML"
+            hx-get="{% url 'banks:delete' business_entity.id %}"
+    >
+        Видалити
+    </button>
+    <button
+            class="btn btn-success"
+            type="button"
+            hx-target="#bankForm"
+            hx-trigger="click"
+            hx-swap="outerHTML"
+            hx-post="{% url 'banks:update' business_entity.id %}"
+    >
+        Прийняти зміни
+    </button>
+{% endblock %}
