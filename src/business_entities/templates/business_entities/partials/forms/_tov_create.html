@@ -1,0 +1,32 @@
+{% extends 'business_entities/partials/forms/_base_create.html' %}
+
+{% block business_entity_type %}
+    <div>
+        <input
+                type="radio"
+                class="btn-check"
+                name="options-base"
+                id="fop"
+                autocomplete="off"
+                hx-get="{% url 'business_entities:create_fop' %}"
+                hx-target="#createForm"
+                hx-swap="outerHTML"
+        >
+        <label class="btn btn-outline-primary" for="fop">ФОП</label>
+
+        <input type="radio" class="btn-check btn-info" name="options-base" id="tov" autocomplete="off" checked>
+        <label class="btn btn-outline-primary" for="tov">ТОВ</label>
+    </div>
+{% endblock %}
+{% block create_button %}
+    <div class="d-flex justify-content-center flex-fill">
+        <button
+                type="button"
+                class="btn btn-outline-success fw-bold"
+                hx-post="{% url 'business_entities:create_tov' %}"
+                hx-target="#createForm"
+                hx-swap="outerHTML"
+        >Створити ТОВ
+        </button>
+    </div>
+{% endblock %}
