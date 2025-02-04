@@ -5,19 +5,14 @@ from . import views
 app_name = 'business_entities'
 
 urlpatterns = [
-    path('', views.business_entities_list, name='business_entities'),
-    path('create-fop-form/', views.create_fop_form, name='create_fop_form'),
-    path('create-tov-form/', views.create_tov_form, name='create_tov_form'),
-    path('<int:business_entity_id>/', views.business_entity_detail, name='business_entity_detail'),
-    path('delete/<int:business_entity_id>/', views.delete_business_entity, name='delete_business_entity'),
+    path('', views.BusinessEntitiesListView.as_view(), name='list'),
+    path('create-fop/', views.FOPCreateView.as_view(), name='create_fop'),
+    path('create-tov/', views.TOVCreateView.as_view(), name='create_tov'),
+    path('<int:business_entity_id>/', views.BusinessEntityDetailView.as_view(), name='detail'),
+    path('delete/<int:business_entity_id>/', views.BusinessEntityDeleteView.as_view(), name='delete'),
     path(
-        'update-form/<int:business_entity_id>/',
-        views.business_entity_update_form,
-        name='business_entity_update_form'
-    ),
-    path(
-        'detail-form/<int:business_entity_id>/',
-        views.business_entity_detail_form,
-        name='business_entity_detail_form'
-    ),
+        'update/<int:business_entity_id>/',
+        views.BusinessEntityUpdateView.as_view(),
+        name='update'
+    )
 ]
