@@ -1,12 +1,12 @@
-<div id="templatesSearchList">
-    {% for template in templates %}
+<div id="bankSearchList">
+    {% for bank in banks %}
         <button type="button"
                 class="btn btn-outline-secondary btn-sm form-control mb-2"
-                hx-target="#templatesSearchForm"
+                hx-target="#bankSearchForm"
                 hx-swap="outerHTML"
-                hx-get="{% url 'contracts:create_contract' business_entity.id template.id %}"
+                hx-post="{% url 'banks:add_to_business_entity' business_entity_id=business_entity.id bank_id=bank.id %}"
         >
-            {{ template.name }}
+            {{ bank.name }}, {{ bank.mfo }}
         </button>
     {% endfor %}
     {% if is_paginated %}
@@ -17,9 +17,9 @@
                         class="btn btn-outline-secondary flex-fill btn-sm form-control mb-2"
                         name="page"
                         value="{{ page_obj.previous_page_number }}"
-                        hx-get="{% url 'contracts:search_contract_templates' business_entity.id %}"
-                        hx-target="#templatesSearchList"
-                        hx-include="[name='searchTemplates']"
+                        hx-get="{% url 'banks:search' business_entity.id %}"
+                        hx-target="#bankSearchList"
+                        hx-include="[name='searchBanks']"
                         hx-swap="outerHTML">&laquo;
                 </button>
             {% else %}
@@ -29,14 +29,14 @@
                 </button>
             {% endif %}
             {% if page_obj.has_next %}
-                <button
+                <button 
                         type="button"
                         class="btn btn-outline-secondary flex-fill btn-sm form-control mb-2"
                         name="page"
                         value="{{ page_obj.next_page_number }}"
-                        hx-get="{% url 'contracts:search_contract_templates' business_entity.id %}"
-                        hx-target="#templatesSearchList"
-                        hx-include="[name='searchTemplates']"
+                        hx-get="{% url 'banks:search' business_entity.id %}"
+                        hx-target="#bankSearchList"
+                        hx-include="[name='searchBanks']"
                         hx-swap="outerHTML">&raquo;
                 </button>
             {% else %}

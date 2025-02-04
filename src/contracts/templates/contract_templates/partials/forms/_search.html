@@ -16,7 +16,7 @@
             <button
                     class="btn btn-success"
                     type="submit"
-                    hx-get="{% url 'contracts:search_contract_templates' business_entity.id %}"
+                    hx-get="{% url 'contracts:search' business_entity.id %}"
                     hx-target="#templatesSearchList"
                     hx-trigger="click"
                     hx-include="[name='searchTemplates']"
@@ -24,7 +24,7 @@
             >Пошук
             </button>
         </form>
-        {% include 'contract_templates/partials/search_list.html' %}
+        {% include 'contract_templates/partials/lists/_search.html' %}
         <div class="d-flex justify-content-center">
             <button
                     class="btn btn-danger d-flex flex-fill justify-content-center"
@@ -32,7 +32,7 @@
                     hx-target="#documentDetailList"
                     hx-trigger="click"
                     hx-swap="outerHTML"
-                    hx-get="{% url 'contracts:create_document_detail_list' business_entity.id %}"
+                    hx-get="{% url 'contracts:detail' business_entity.id %}"
             >Скасувати
             </button>
         </div>
