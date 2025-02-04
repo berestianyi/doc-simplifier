@@ -8,9 +8,7 @@ class LoginRequiredMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
         self.exempt_urls = [
-            reverse('users:user_login'),
-            # reverse('admin:login'),  # админка (если надо)
-            # reverse('admin:index')
+            reverse('users:login'),
         ]
 
     def __call__(self, request):
