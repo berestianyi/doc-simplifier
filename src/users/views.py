@@ -1,25 +1,34 @@
-from django.contrib.auth import authenticate, login
-from django.shortcuts import render, redirect
-from django.views import View
+from django.contrib.auth import get_user_model
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.views import LoginView
+from django.urls import reverse_lazy
+from django.views.generic import TemplateView, UpdateView
 
-from users.forms import CustomLoginForm
+from .forms import EmailAuthenticationForm, ProfileForm, ProfileDetailForm
+
+User = get_user_model()
 
 
-class UserLoginView(View):
-    def get(self, request):
-        form = CustomLoginForm()
-        return render(request, 'users/login.html', {'form': form})
+class CustomLoginView(LoginView):
+    template_name = 'users/login.html'
+    authentication_form = EmailAuthenticationForm
 
-    def post(self, request):
-        form = CustomLoginForm(request.POST)
-        if form.is_valid():
-            email = form.cleaned_data['email']
-            password = form.cleaned_data['password']
-            user = authenticate(request, email=email, password=password)
-            if user is not None:
-                login(request, user)
-                return redirect('home_page')
 
-            form.add_error(None, 'Невірний email або пароль')
+class ProfileView(LoginRequiredMixin, TemplateView):
+    template_name = "users/profile.html"
 
-        return render(request, 'users/login.html', {'form': form})
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["form"] = ProfileDetailForm(instance=self.request.user)
+        context['user'] = self.request.user
+        return context
+
+
+class ProfileUpdateView(LoginRequiredMixin, UpdateView):
+    model = User
+    form_class = ProfileForm
+    template_name = "users/profile_update.html"
+    success_url = reverse_lazy("profile")
+
+    def get_object(self, queryset=None):
+        return self.request.user
