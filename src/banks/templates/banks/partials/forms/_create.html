@@ -1,0 +1,22 @@
+{% extends 'banks/partials/forms/_base.html' %}
+
+{% block crud_buttons %}
+    <button
+            class="btn btn-secondary me-3"
+            type="button"
+            hx-target="#bankForm"
+            hx-swap="outerHTML"
+            hx-get="{% url 'banks:detail' business_entity.id %}"
+    >
+        Скасувати
+    </button>
+    <button
+            class="btn btn-success"
+            type="button"
+            hx-post="{% url 'banks:create' business_entity.id %}"
+            hx-swap="outerHTML"
+            hx-target="#bankForm"
+    >
+        Створити
+    </button>
+{% endblock %}
