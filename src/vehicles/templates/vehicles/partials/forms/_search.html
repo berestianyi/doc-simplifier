@@ -1,0 +1,46 @@
+<div class="d-flex flex-fill card border-success mb-3" style="min-width: 300px;">
+    <div class="card-body text-success">
+        <form
+                class="d-flex mb-3"
+                role="search"
+                id="search-form"
+        >
+            {% csrf_token %}
+            <input class="form-control border-success me-2"
+                   type="search"
+                   placeholder="Пошук по номеру ТЗ"
+                   aria-label="Search"
+                   name="searchVehicles"
+                   value="{{ query }}"
+            >
+            <button
+                    class="btn btn-success"
+                    type="submit"
+                    hx-get="{% url 'vehicles:search_without_entities' business_entity.id %}"
+                    hx-target="#vehicleSearchList"
+                    hx-trigger="click"
+                    hx-include="[name='searchVehicles']"
+                    hx-swap="outerHTML"
+            >Пошук
+            </button>
+        </form>
+        {% include 'vehicles/partials/lists/_search.html' %}
+        <div class="d-flex justify-content-center">
+            <button
+                    class="btn btn-danger me-3"
+                    type="button"
+                    hx-target="#vehicleDetailList"
+                    hx-trigger="click"
+                    hx-swap="outerHTML"
+                    hx-get="{% url 'vehicles:list_in_business_entity' business_entity.id %}"
+            >Скасувати
+            </button>
+            <a
+                    href="{% url 'vehicles:create_in_business_entity' business_entity.id %}"
+                    class="btn btn-success"
+                    type="button"
+            >Створити новий ТЗ
+            </a>
+        </div>
+    </div>
+</div>

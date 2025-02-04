@@ -6,6 +6,7 @@ app_name = 'vehicles'
 urlpatterns = [
     path('list/', views.VehiclesListView.as_view(), name='list'),
     path('create/', views.CreateVehicleView.as_view(), name='create'),
+    path('create/<int:business_entity_id>/', views.CreateVehicleView.as_view(), name='create_in_business_entity'),
     path('<int:vehicle_id>/', views.VehicleAndLicenceDetailView.as_view(), name='detail'),
     path('<int:vehicle_id>/update/', views.VehicleAndLicenceUpdateView.as_view(), name='update'),
     path('<int:vehicle_id>/delete/', views.VehicleAndLicenceDeleteView.as_view(), name='delete'),
@@ -13,12 +14,7 @@ urlpatterns = [
          views.VehicleRedirectToDetailView.as_view(),
          name='redirect_to_detail'),
     path(
-        'redirect-to-create/',
-        views.VehicleRedirectToCreateView.as_view(),
-        name='redirect_to_create_form'
-    ),
-    path(
-        'create-search-form/<int:business_entity_id>/',
+        'create-search-forms/<int:business_entity_id>/',
         views.CreateSearchVehicleFormView.as_view(),
         name='create_search_form',
     ),

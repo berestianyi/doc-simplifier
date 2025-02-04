@@ -1,111 +1,53 @@
-from django.db.models import Count, Q
-from django.shortcuts import render, get_object_or_404
-from django.utils.functional import cached_property
+from django.shortcuts import render
 from django.views import View
 from django.views.generic import ListView, CreateView, TemplateView, UpdateView
 
-from business_entities.models import BusinessEntities
-from business_entities.views import BusinessEntityMixin
+from business_entities.mixins import BusinessEntityMixin, SearchMixin
+
 from .forms import BankDetailForm, BankCreateForm, BankUpdateForm
+from .mixins import BankMixin
 from .models import Bank
 
 
-class BankMixin:
-    @cached_property
-    def bank(self):
-        bank_id = self.kwargs.get("bank_id")
-        return get_object_or_404(Bank, pk=bank_id)
-
-
-class BankSearchCreateFormView(BusinessEntityMixin, ListView):
+class BankSearchCreateFormView(BusinessEntityMixin, BankMixin, ListView):
     model = Bank
-    template_name = 'banks/partials/search_form.html'
+    template_name = 'banks/partials/forms/_search.html'
     context_object_name = 'banks'
     paginate_by = 5
 
     def get_queryset(self):
-        queryset = (
-            Bank.objects
-            .annotate(num_entities=Count('business_entities'))
-            .order_by('-num_entities', 'name')
-        )
-        return queryset
+        return self.available_banks()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['business_entity'] = self.business_entity
         return context
 
-#
-# def create_bank_search_form(request, business_entity_id):
-#     business_entity = get_object_or_404(BusinessEntities, pk=business_entity_id)
-#
-#     banks = (
-#         Bank.objects
-#         .annotate(num_entities=Count('business_entities'))
-#         .order_by('-num_entities', 'name')
-#     )
-#
-#     return render(
-#         request,
-#         'banks/partials/search_form.html',
-#         {
-#             'banks': banks,
-#             'business_entity': business_entity,
-#         }
-#     )
 
-
-class BankSearchListView(BusinessEntityMixin, ListView):
+class BankSearchListView(BusinessEntityMixin, SearchMixin, BankMixin, ListView):
     model = Bank
-    template_name = 'banks/partials/search_list.html'
+    template_name = 'banks/partials/lists/_search.html'
     context_object_name = 'banks'
+    search_param_name = 'searchBanks'
+    search_fields = ['name', 'mfo']
     paginate_by = 5
 
     def get_queryset(self):
-        query = self.request.GET.get('searchBanks', '')
-        queryset = Bank.objects.annotate(
-            num_entities=Count('business_entities')
-        ).filter(
-            Q(name__icontains=query) | Q(mfo__icontains=query)
-        ).order_by('-num_entities', 'name')
-
+        queryset = self.available_banks()
+        queryset = self.search_queryset(queryset)
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['query'] = self.request.GET.get('searchBanks', '')
+        context['query'] = self.get_queryset()
         context['business_entity'] = self.business_entity
-
         return context
-# def search_banks(request, business_entity_id):
-#     business_entity = get_object_or_404(BusinessEntities, pk=business_entity_id)
-#     query = request.GET.get('q', '')
-#
-#     banks = (
-#         Bank.objects
-#         .annotate(num_entities=Count('business_entities'))
-#         .filter(
-#             Q(name__icontains=query) | Q(mfo__icontains=query)
-#         )
-#         .order_by('-num_entities', 'name')
-#     )
-#
-#     return render(
-#         request,
-#         'banks/partials/search_list.html',
-#         {
-#             'banks': banks,
-#             'query': query,
-#             'business_entity': business_entity,
-#         }
-#     )
 
 
 class AddBankToBusinessEntityView(BankMixin, BusinessEntityMixin, View):
     template_name = 'banks/detail.html'
 
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         business_entity = self.business_entity
         bank = self.bank
 
@@ -115,33 +57,12 @@ class AddBankToBusinessEntityView(BankMixin, BusinessEntityMixin, View):
         business_entity.bank = bank
         business_entity.save()
 
-        bank_form = BankDetailForm(instance=bank)
-
-        return render(request, self.template_name, {
-            'bank_form': bank_form,
+        context = {
+            'bank_form': BankDetailForm(instance=bank),
             'business_entity': business_entity,
-        })
-#
-# def add_bank_to_business_entity(request, business_entity_id, bank_id):
-#     business_entity = get_object_or_404(BusinessEntities, pk=business_entity_id)
-#     bank = get_object_or_404(Bank, pk=bank_id)
-#
-#     if business_entity.bank:
-#         business_entity.bank = None
-#
-#     business_entity.bank = bank
-#     business_entity.save()
-#
-#     bank_form = BankDetailForm(instance=bank)
-#
-#     return render(
-#         request,
-#         'banks/detail.html',
-#         {
-#             'bank_form': bank_form,
-#             'business_entity': business_entity,
-#         }
-#     )
+        }
+
+        return render(request, self.template_name, context)
 
 
 class BankDetailView(BusinessEntityMixin, TemplateView):
@@ -152,30 +73,13 @@ class BankDetailView(BusinessEntityMixin, TemplateView):
         business_entity = self.business_entity
         bank = business_entity.bank
 
+        bank_form = ''
         if bank:
             bank_form = BankDetailForm(instance=bank)
-        else:
-            bank_form = ''
 
         context['bank_form'] = bank_form
         context['business_entity'] = business_entity
         return context
-#
-# def create_bank_detail_form(request, business_entity_id):
-#     business_entity = get_object_or_404(BusinessEntities, pk=business_entity_id)
-#     bank = business_entity.bank
-#
-#     if bank:
-#         bank_form = BankDetailForm(instance=bank)
-#     else:
-#         bank_form = ''
-#
-#     context = {
-#         'bank_form': bank_form,
-#         'business_entity': business_entity,
-#     }
-#
-#     return render(request, 'banks/detail.html', context)
 
 
 class BankCreateView(BusinessEntityMixin, CreateView):
@@ -188,65 +92,35 @@ class BankCreateView(BusinessEntityMixin, CreateView):
         business_entity = self.business_entity
         business_entity.bank = bank
         business_entity.save()
-        return render(
-            self.request,
-            'banks/detail.html',
-            {
-                'bank_form': BankDetailForm(instance=bank),
-                'business_entity': business_entity,
-            }
-        )
+
+        context = {
+            'bank_form': BankDetailForm(instance=bank),
+            'business_entity': business_entity,
+        }
+
+        return render(self.request, 'banks/detail.html', context)
 
     def form_invalid(self, form):
-        return render(
-            self.request,
-            self.template_name,
-            {
-                'bank_form': form,
-                'business_entity': self.business_entity,
-            }
-        )
+        context = {
+            'bank_form': form,
+            'business_entity': self.business_entity,
+        }
+        return render(self.request, self.template_name, context)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['bank_form'] = BankCreateForm()
         context['business_entity'] = self.business_entity
         return context
-
-# def create_bank_form(request, business_entity_id):
-#     business_entity = get_object_or_404(BusinessEntities, pk=business_entity_id)
-#     bank_form = BankCreateForm(request.POST or None)
-#
-#     if request.method == 'POST':
-#         if bank_form.is_valid():
-#             bank = bank_form.save()
-#             business_entity.bank = bank
-#             business_entity.save()
-#
-#             return render(
-#                 request,
-#                 'banks/detail.html',
-#                 {
-#                     'bank_form': BankDetailForm(instance=bank),
-#                     'business_entity': business_entity,
-#                 }
-#             )
-#
-#     return render(
-#         request,
-#         'banks/create.html', {
-#             'bank_form': bank_form,
-#             'business_entity': business_entity,
-#         })
 
 
 class BankUpdateView(BusinessEntityMixin, UpdateView):
     model = Bank
     form_class = BankUpdateForm
-    template_name = 'banks/partials/update_form.html'
+    template_name = 'banks/partials/forms/_update.html'
 
     def get_object(self, queryset=None):
-        business_entity = self.business_entity
-        return business_entity.bank
+        return self.business_entity.bank
 
     def form_valid(self, form):
         bank = form.save()
@@ -254,56 +128,24 @@ class BankUpdateView(BusinessEntityMixin, UpdateView):
         business_entity.bank = bank
         business_entity.save()
 
-        return render(
-            self.request,
-            'banks/detail.html',
-            {
-                'bank_form': BankDetailForm(instance=bank),
-                'business_entity': business_entity,
-            }
-        )
+        context = {
+            'bank_form': BankDetailForm(instance=bank),
+            'business_entity': business_entity,
+        }
+        return render(self.request, 'banks/detail.html', context)
 
     def form_invalid(self, form):
-        return render(
-            self.request,
-            self.template_name,
-            {
-                'bank_form': form,
-                'business_entity': self.business_entity,
-            }
-        )
+        context = {
+            'bank_form': form,
+            'business_entity': self.business_entity,
+        }
+        return render(self.request, self.template_name, context)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['business_entity'] = self.business_entity
         context['bank_form'] = BankUpdateForm(instance=self.business_entity.bank)
         return context
-
-# def update_bank_form(request, business_entity_id):
-#     business_entity = get_object_or_404(BusinessEntities, pk=business_entity_id)
-#     bank_form = BankCreateForm(request.POST or None, instance=business_entity.bank)
-#
-#     if request.method == 'POST':
-#         if bank_form.is_valid():
-#             bank = bank_form.save()
-#             business_entity.bank = bank
-#             business_entity.save()
-#
-#             return render(
-#                 request,
-#                 'banks/detail.html',
-#                 {
-#                     'bank_form': BankDetailForm(instance=bank),
-#                     'business_entity': business_entity,
-#                 }
-#             )
-#
-#     return render(
-#         request,
-#         'banks/partials/update_form.html', {
-#             'bank_form': bank_form,
-#             'business_entity': business_entity,
-#         })
 
 
 class BankDeleteView(BusinessEntityMixin, View):
@@ -314,21 +156,9 @@ class BankDeleteView(BusinessEntityMixin, View):
         business_entity.bank = None
         business_entity.save()
 
-        return render(
-            request,
-            self.template_name,
-            {
-                'bank_form': '',
-                'business_entity': business_entity,
-            }
-        )
+        context = {
+            'bank_form': '',
+            'business_entity': business_entity,
+        }
 
-# def delete_bank(request, business_entity_id):
-#     business_entity = get_object_or_404(BusinessEntities, pk=business_entity_id)
-#     business_entity.bank = None
-#     business_entity.save()
-#
-#     return render(request, 'banks/detail.html', {
-#         'bank_form': '',
-#         'business_entity': business_entity,
-#     })
+        return render(request, self.template_name, context)

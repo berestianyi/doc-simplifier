@@ -1,0 +1,32 @@
+{% extends 'vehicles/partials/forms/_base.html' %}
+
+
+{% block vehicle_crud_buttons %}
+    <div class="d-flex flex-row flex-wrap my-3">
+        <button
+                type="button"
+                class="btn btn-secondary mx-3 my-1"
+                hx-get="{% url 'vehicles:detail' vehicle.id %}"
+                hx-target="#vehicleForm"
+                hx-swap="outerHTML"
+        >
+            Скасувати зміни
+        </button>
+        <a
+                href="{% url 'vehicles:delete' vehicle_id=vehicle.id %}"
+                type="button"
+                class="btn btn-danger mx-3 my-1"
+        >
+            Видалити ТЗ
+        </a>
+        <button
+                type="button"
+                class="btn btn-success mx-3 my-1"
+                hx-post="{% url 'vehicles:update' vehicle.id %}"
+                hx-target="#vehicleForm"
+                hx-swap="outerHTML"
+        >
+            Застосувати зміни
+        </button>
+    </div>
+{% endblock %}

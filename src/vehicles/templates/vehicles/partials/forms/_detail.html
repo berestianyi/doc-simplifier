@@ -1,0 +1,15 @@
+{% extends 'vehicles/partials/forms/_base.html' %}
+
+
+{% block vehicle_crud_buttons %}
+    <div class="d-flex flex-row flex-wrap my-3">
+        <button
+                type="button"
+                class="btn btn-warning mx-3 my-1"
+                hx-get="{% url 'vehicles:update' vehicle.id %}"
+                hx-target="#vehicleForm"
+                hx-swap="outerHTML"
+        >Редагувати
+        </button>
+    </div>
+{% endblock %}

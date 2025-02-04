@@ -1,10 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'templates/base.html' %}
+{% load static %}
 
-</body>
-</html>
+{% block title %}
+    <title>{{ user.name }}</title>
+{% endblock %}
+
+{% block body %}
+    <div class="d-flex flex-row flex-wrap justify-content-center">
+        <div class="d-flex flex-column flex-wrap">
+            <form>
+                {% include 'users/form.html' %}
+                <div class="d-flex flex-row my-3">
+                    <a
+                            href="{% url 'users:profile_update' %}"
+                            class="btn btn-warning flex-fill">
+                        Редагувати
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

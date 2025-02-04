@@ -3,35 +3,47 @@
         <button
                 class="btn btn-success flex-fill"
                 type="button"
-                hx-get="{% url 'contracts:create_contract_templates_search_form' business_entity.id %}"
+                hx-get="{% url 'contracts:search_form' business_entity.id %}"
                 hx-trigger="click"
                 hx-target="#searchDocuments"
                 hx-swap="outerHTML"
         >Створити документ
         </button>
     </div>
-    <div>
-        {% for document in documents %}
-            <div class="input-group mb-1">
-                    <input type="text"
-                           class="form-control"
-                           aria-describedby="button-addon2"
-                           value="{{ document.name }}"
-                           readonly
-                           style="cursor: pointer;"
-                           hx-trigger="click"
-                    >
-                <a
-                        href="{% url 'contracts:documents_download' document.id %}"
-                        class="btn btn-success"
-                        type="button"
-                        id="button-addon2"
-{#                        hx-target="#documentDetailList"#}
-{#                        hx-trigger="click"#}
-{#                        hx-swap="outerHTML"#}
-                >Скачати
-                </a>
-            </div>
-        {% endfor %}
-    </div>
+    {% if documents %}
+        <div
+                data-bs-spy="scroll"
+                data-bs-target="#navbar-example2"
+                data-bs-root-margin="0px 0px -40%"
+                data-bs-smooth-scroll="true"
+                class="bg-body-tertiary p-3 rounded-2"
+                tabindex="0"
+                style="max-height: 400px; overflow-y: auto;"
+        >
+            {% for document in documents %}
+                <div class="my-2 border-bottom">
+                    <div class="d-flex flex-column flex-wrap">
+                        <div class="my-2">
+                            <a href="{% url 'documents:download' document.id %}"
+                               class="text-decoration-none">{{ document.name }}</a>
+                        </div>
+                        <div class="d-flex flex-row flex-wrap justify-content-between">
+                            <div>
+                                <p class="text text-secondary">{{ document.created_at }}</p>
+                            </div>
+                            <div>
+                                <button
+                                        class="btn btn-danger btn-sm"
+                                        type="button"
+                                        hx-post="{% url 'contracts:delete'  document_id=document.id business_entity_id=business_entity.id%}"
+                                        hx-target="#documentDetailList"
+                                        hx-swap="outerHTML"
+                                > Видалити</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
 </div>

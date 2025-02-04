@@ -7,15 +7,17 @@
 
 {% block body %}
     <div class="d-flex flex-row flex-wrap ">
-        <div class="d-flex flex-fill flex-column px-2" style="min-width: 300px;">
-            {% include 'business_entities/partials/update_and_detail_form.html' %}
+        <div class="d-flex flex-fill flex-column px-2" style="min-width: 300px; max-width: 700px">
+            {% include 'business_entities/partials/forms/_detail.html' %}
             <hr>
-            <h4>Банк</h4>
-            {% include 'banks/detail.html' %}
+            <div>
+                <h4>Банк</h4>
+                {% include 'banks/detail.html' %}
+            </div>
         </div>
-        <div class="d-flex flex-fill flex-column px-2" style="min-width: 300px; max-width: 500px">
+        <div class="d-flex flex-fill flex-column px-2" style="min-width: 300px; max-width: 450px">
             <h3>Транспортні засоби</h3>
-            {% include 'vehicles/detail_list.html' %}
+            {% include 'vehicles/partials/lists/_detail.html' %}
             <hr>
             <h4>Документи</h4>
             {% include 'documents/detail_list.html' %}

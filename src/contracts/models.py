@@ -9,7 +9,7 @@ from business_entities.models import BusinessEntitiesEnum
 class Contracts(models.Model):
     business_entities = models.ForeignKey(
         'business_entities.BusinessEntities',
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
         null=True,
         blank=True)
     template = models.ForeignKey(
@@ -25,14 +25,24 @@ class Contracts(models.Model):
         return f"Contract {self.business_entities.director_name}"
 
 
-class Templates(models.Model):
+class TemplateTypeEnum(models.TextChoices):
+    ROYAL = "ROYAL", _("РОЯЛ")
+    ROLAND = "ROLAND", _("РОЛАНД")
 
+
+class Templates(models.Model):
     business_entity_type = models.CharField(
         max_length=3,
         choices=BusinessEntitiesEnum.choices,
         default=BusinessEntitiesEnum.FOP,
         blank=True,
         null=True
+    )
+    template_type = models.CharField(
+        choices=TemplateTypeEnum.choices,
+        default=TemplateTypeEnum.ROYAL,
+        blank=True,
+        null=True,
     )
     name = models.CharField(blank=True, null=True, max_length=100)
     path = models.FileField(upload_to='uploads/templates/', blank=True, null=True)

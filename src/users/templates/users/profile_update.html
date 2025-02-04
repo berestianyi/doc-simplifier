@@ -1,0 +1,28 @@
+{% extends 'templates/base.html' %}
+{% load static %}
+
+{% block title %}
+    <title>{{ user.name }}</title>
+{% endblock %}
+
+{% block body %}
+    <div class="d-flex flex-row flex-wrap justify-content-center">
+        <div class="d-flex flex-column flex-wrap">
+            <form action="{% url 'users:profile_update' %}" method="post">
+                {% include 'users/form.html' %}
+                <div class="d-flex flex-row my-3">
+                    <a
+                            href="{% url 'users:profile' %}"
+                            class="btn btn-secondary me-3 flex-fill">
+                        Скасувати
+                    </a>
+                    <button
+                            type="submit"
+                            class="btn btn-success flex-fill">
+                        Зберегти
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

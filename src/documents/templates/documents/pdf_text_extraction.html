@@ -9,14 +9,21 @@
     <div class="d-flex flex-column flex-wrap">
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
-            <label for="formFileLg" class="form-label">Виберіть файл з якого, хочете добути текст</label>
-            {{ form.pdf_file }}
-            {% if field.errors %}
-                <div class="text-danger">
-                    {{ field.errors }}
+            <div class="card d-flex flex-wrap">
+                <div class="card-header">
+                    <h3>OpenDataUA</h3>
                 </div>
-            {% endif %}
-        <button type="submit" class="btn btn-success">Генерувати СГ</button>
+                <div class="card-body">
+                <label for="formFileLg" class="form-label">Виберіть файл OpenDataUA з якого хочете добути текст</label>
+                {{ form.pdf_file }}
+                {% if field.errors %}
+                    <div class="text-danger">
+                        {{ field.errors }}
+                    </div>
+                {% endif %}
+                <button type="submit" class="btn btn-success mt-3">Генерувати СГ</button>
+                </div>
+            </div>
         </form>
     </div>
 {% endblock %}

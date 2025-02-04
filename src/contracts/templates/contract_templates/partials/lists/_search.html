@@ -1,0 +1,50 @@
+<div id="templatesSearchList">
+    {% for template in templates %}
+        <button type="button"
+                class="btn btn-outline-secondary btn-sm form-control mb-2"
+                hx-target="#templatesSearchForm"
+                hx-swap="outerHTML"
+                hx-get="{% url 'contracts:create' business_entity.id template.id %}"
+        >
+            {{ template.name }}
+        </button>
+    {% endfor %}
+    {% if is_paginated %}
+        <div class="btn-group d-flex flex-fill" role="group" aria-label="Pagination">
+            {% if page_obj.has_previous %}
+                <button
+                        type="button"
+                        class="btn btn-outline-secondary flex-fill btn-sm form-control mb-2"
+                        name="page"
+                        value="{{ page_obj.previous_page_number }}"
+                        hx-get="{% url 'contracts:search' business_entity.id %}"
+                        hx-target="#templatesSearchList"
+                        hx-include="[name='searchTemplates']"
+                        hx-swap="outerHTML">&laquo;
+                </button>
+            {% else %}
+                <button
+                        type="button"
+                        class="btn btn-outline-secondary flex-fill btn-sm form-control mb-2 disabled">&laquo;
+                </button>
+            {% endif %}
+            {% if page_obj.has_next %}
+                <button
+                        type="button"
+                        class="btn btn-outline-secondary flex-fill btn-sm form-control mb-2"
+                        name="page"
+                        value="{{ page_obj.next_page_number }}"
+                        hx-get="{% url 'contracts:search' business_entity.id %}"
+                        hx-target="#templatesSearchList"
+                        hx-include="[name='searchTemplates']"
+                        hx-swap="outerHTML">&raquo;
+                </button>
+            {% else %}
+                <button
+                        type="button"
+                        class="btn btn-outline-secondary flex-fill btn-sm form-control mb-2 disabled">&laquo;
+                </button>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>

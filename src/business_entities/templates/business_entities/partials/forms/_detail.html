@@ -1,0 +1,14 @@
+{% extends 'business_entities/partials/forms/_base.html' %}
+{% block crud_buttons %}
+
+    <div class="d-flex flex-row flex-wrap my-3">
+        <button
+                type="button"
+                class="btn btn-warning mx-3 my-1"
+                hx-get="{% url 'business_entities:update' business_entity.id %}"
+                hx-target="#businessEntityForm"
+                hx-swap="outerHTML"
+        >Редагувати
+        </button>
+    </div>
+{% endblock %}
