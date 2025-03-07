@@ -14,5 +14,10 @@ urlpatterns = [
         'update/<int:business_entity_id>/',
         views.BusinessEntityUpdateView.as_view(),
         name='update'
+    ),
+    path(
+        'update/',
+        views.BusinessEntityUpdateView.as_view(),
+        name='update_'
     )
 ]
