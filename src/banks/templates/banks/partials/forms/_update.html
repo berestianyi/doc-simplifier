@@ -17,7 +17,7 @@
             hx-target="#bankForm"
             hx-trigger="click"
             hx-swap="outerHTML"
-            hx-get="{% url 'banks:delete' business_entity.id %}"
+            hx-post="{% url 'banks:delete' business_entity.id %}"
     >
         Видалити
     </button>

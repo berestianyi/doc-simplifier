@@ -1,6 +1,5 @@
-import os
-from django.http import Http404, FileResponse
-from django.shortcuts import render
+from django.forms import model_to_dict
+from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, View, CreateView, UpdateView
 
@@ -9,10 +8,13 @@ from business_entities.views import BusinessEntityMixin
 from documents.mixins import DocumentMixin
 from documents.models import Documents
 from vehicles.mixins import VehicleMixin
-from .forms import ContractTimeRangeForm, TemplatesForm
+from .forms import TemplatesForm, RoyalForm, RolandForm
 from .mixins import TemplateMixin
-from .models import Templates, Contracts
-from .services import WordDocManager
+from .models import Templates, Contracts, TemplateTypeEnum
+from .services.converters import DataConverter
+from .services.core import ContractService
+from .services.docx_editors import DocxEditor, RolandDocxEditor, RoyalDocxEditor
+from .services.formatters import RolandFormatter, RoyalFormatter
 
 
 class ContractTemplatesSearchFormView(BusinessEntityMixin, TemplateMixin, ListView):
@@ -86,14 +88,91 @@ class ContractDocumentDeleteView(BusinessEntityMixin, DocumentMixin, View):
         return render(request, self.template_name, context)
 
 
-class ContractCreateView(BusinessEntityMixin, VehicleMixin, TemplateMixin, DocumentMixin, CreateView):
+class ContractCreateView(BusinessEntityMixin, VehicleMixin, TemplateMixin, DocumentMixin, View):
+    template_name = "contracts/partials/forms/_create.html"
+
+    def get_form_class(self):
+        if self.template_obj.template_type == TemplateTypeEnum.ROYAL:
+            return RoyalForm
+        return RolandForm
+
+    def get_context_data(self, form):
+        return {
+            "time_range_form": form,
+            "business_entity": self.business_entity,
+            "template": self.template_obj,
+            "documents": self.business_entities_documents(business_entity=self.business_entity),
+        }
+
+    def get(self, request, *args, **kwargs):
+        form_class = self.get_form_class()
+        form = form_class()
+        context = self.get_context_data(form)
+        return render(request, self.template_name, context)
+
+    def post(self, request, *args, **kwargs):
+        form_class = self.get_form_class()
+        form = form_class(request.POST)
+        if form.is_valid():
+            return self.form_valid(form)
+        return self.form_invalid(form)
+
+    def form_valid(self, form):
+        contract = Contracts.objects.create(
+            business_entities=self.business_entity,
+            template=self.template_obj,
+            start_date=form.cleaned_data['start_date'],
+            end_date=form.cleaned_data['end_date'],
+        )
+
+        form_dict = {
+            field: dict(form.fields[field].choices).get(value, value)
+            for field, value in form.cleaned_data.items()
+            if field in form.fields and hasattr(form.fields[field], "choices")
+        }
+
+        converter = DataConverter()
+        if self.template_obj.template_type == TemplateTypeEnum.ROYAL:
+            formatter = RoyalFormatter()
+            editor = RoyalDocxEditor(self.template_obj.path.path)
+        else:
+            formatter = RolandFormatter()
+            editor = RolandDocxEditor(self.template_obj.path.path)
+
+        service = ContractService(converter=converter, formatter=formatter, editor=editor)
+        output, filename = service.generate(
+            form_dict=form_dict,
+            start_date=form.cleaned_data['start_date'],
+            end_date=form.cleaned_data['end_date'],
+            entity=self.business_entity,
+            template=self.template_obj,
+            contract_id=contract.id,
+            vehicles=[]
+        )
+
+        Documents.objects.create(name=filename, path=output, contract=contract)
+
+        context = self.get_context_data(form)
+
+        return render(self.request, "documents/detail_list.html", context)
+
+    def form_invalid(self, form):
+        context = self.get_context_data(form)
+        return render(self.request, self.template_name, context)
+
+
+class ContractCrpeateView(BusinessEntityMixin, VehicleMixin, TemplateMixin, DocumentMixin, CreateView):
     template_name = "contracts/partials/forms/_create.html"
     model = Contracts
-    form_class = ContractTimeRangeForm
+    fields = '__all__'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['time_range_form'] = context.pop('form', None)
+        if self.template_obj.template_type == TemplateTypeEnum.ROYAL:
+            self.form_class = RoyalForm
+        else:
+            self.form_class = RolandForm
+        context['time_range_form'] = self.form_class
         context['business_entity'] = self.business_entity
         context['template'] = self.template_obj
         return context
@@ -104,32 +183,47 @@ class ContractCreateView(BusinessEntityMixin, VehicleMixin, TemplateMixin, Docum
         contract.template = self.template_obj
         contract.save()
 
-        start_date = form.cleaned_data["start_date"]
-        expire_date = form.cleaned_data["end_date"]
+        vehicles = []
         vehicles_with_entities = self.vehicles_with_business_entity(business_entity=self.business_entity)
+        if vehicles_with_entities:
+            for vehicle in vehicles_with_entities:
+                vehicles.append(model_to_dict(vehicle))
 
-        replacement_manager = self.get_replacement_manager_class()(
-            start_date=start_date,
-            expire_date=expire_date,
-            business_entity=self.business_entity,
-            bank=self.business_entity.bank,
-            vehicles=vehicles_with_entities,
+        if self.template_obj.template_type == TemplateTypeEnum.ROYAL:
+            self.form_class = RoyalForm
+            converter = DataConverter
+            formatter = RoyalFormatter
+            editor = RoyalDocxEditor
+        else:
+            self.form_class = RolandForm
+            converter = DataConverter
+            formatter = RolandFormatter
+            editor = RolandDocxEditor
+
+        form_dict = {
+            field: dict(form.fields[field].choices).get(value, value)
+            for field, value in form.cleaned_data.items()
+            if field in form.fields and hasattr(form.fields[field], "choices")
+        }
+        print(form_dict)
+        print(form.cleaned_data)
+        print(self.form_class)
+
+        service = ContractService(
+            converter=converter(),
+            formatter=formatter(),
+            editor=editor(self.template_obj.path.path)
         )
 
-        word_manager = WordDocManager(template_path=self.template_obj.path.path)
-
-        replacement_dict = replacement_manager.replacements_generator()
-        cars_dict = replacement_manager.cars_info_generator()
-
-        word_manager.replace_placeholders(replacement_dict)
-        word_manager.add_car_info_to_table(cars_dict)
-
-        filename = word_manager.create_output_filename(
-            self.template_obj,
-            self.business_entity,
-            contract.id
+        output, filename = service.generate(
+            form_dict=form_dict,
+            start_date=form.cleaned_data['start_date'],
+            end_date=form.cleaned_data['end_date'],
+            entity=self.business_entity,
+            template=self.template_obj,
+            contract_id=contract.id,
+            vehicles=vehicles
         )
-        output = word_manager.save_word_file(filename=filename)
         Documents.objects.create(
             name=filename,
             path=output,
@@ -149,73 +243,6 @@ class ContractCreateView(BusinessEntityMixin, VehicleMixin, TemplateMixin, Docum
     def form_invalid(self, form, *args, **kwargs):
         context = self.get_context_data(**kwargs)
         return render(self.request, self.template_name, context)
-
-    # def get(self, request, *args, **kwargs):
-    #     context = self.get_context_data(**kwargs)
-    #     context['time_range_form'] = ContractTimeRangeForm()
-    #     context['business_entity'] = self.business_entity
-    #     context['template'] = self.template_obj
-    #     return self.render_to_response(context)
-    #
-    # def post(self, request, *args, **kwargs):
-    #     time_range_form = ContractTimeRangeForm(request.POST)
-    #     if time_range_form.is_valid():
-    #         vehicles_with_entities = self.vehicles_with_business_entity(business_entity=self.business_entity)
-    #
-    #         start_date = time_range_form.cleaned_data["start_date"]
-    #         expire_date = time_range_form.cleaned_data["end_date"]
-    #
-    #         contract = Contracts.objects.create(
-    #             business_entities=self.business_entity,
-    #             template=self.template_obj,
-    #             start_date=start_date,
-    #             end_date=expire_date,
-    #         )
-    #         contract.save()
-    #
-    #         replacement_manager = self.get_replacement_manager_class()(
-    #                 start_date=start_date,
-    #                 expire_date=expire_date,
-    #                 business_entity=self.business_entity,
-    #                 bank=self.business_entity.bank,
-    #                 vehicles=vehicles_with_entities,
-    #             )
-    #
-    #         word_manager = WordDocManager(template_path=self.template_obj.path.path)
-    #
-    #         replacement_dict = replacement_manager.replacements_generator()
-    #         cars_dict = replacement_manager.cars_info_generator()
-    #
-    #         word_manager.replace_placeholders(replacement_dict)
-    #         word_manager.add_car_info_to_table(cars_dict)
-    #
-    #         filename = word_manager.create_output_filename(
-    #             self.template_obj,
-    #             self.business_entity,
-    #             contract.id
-    #         )
-    #         output = word_manager.save_word_file(filename=filename)
-    #
-    #         document_entity = Documents.objects.create(
-    #             name=filename,
-    #             path=output,
-    #             contract=contract
-    #         )
-    #         document_entity.save()
-    #         documents = Documents.objects.filter(contract__business_entities=self.business_entity)
-    #
-    #         context = {
-    #             "time_range_form": time_range_form,
-    #             "business_entity": self.business_entity,
-    #             "template": self.template_obj,
-    #             "documents": documents,
-    #         }
-    #         return render(request, "documents/_detail.html", context)
-    #
-    #     context = self.get_context_data(**kwargs)
-    #     context['time_range_form'] = time_range_form
-    #     return self.render_to_response(context)
-    #
 
 
 class ContractTemplatesListView(ListView):

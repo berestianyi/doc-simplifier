@@ -2,8 +2,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.functional import cached_property
 
 from business_entities.models import BusinessEntitiesEnum
-from .models import Templates, TemplateTypeEnum
-from .services import RoyalReplacement, RolandReplacement
+from .models import Templates
 
 
 class TemplateMixin:
@@ -25,8 +24,3 @@ class TemplateMixin:
                 business_entity_type=BusinessEntitiesEnum.TOV
             )
         return queryset
-
-    def get_replacement_manager_class(self):
-        if self.template_obj.template_type == TemplateTypeEnum.ROYAL:
-            return RoyalReplacement
-        return RolandReplacement

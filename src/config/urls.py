@@ -3,6 +3,7 @@ from django.views.generic import TemplateView
 
 urlpatterns = [
     path('', TemplateView.as_view(template_name="home.html"), name='home_page'),
+    path('error/', TemplateView.as_view(template_name="error.html"), name='error_page'),
     path("business-entities/", include("business_entities.urls", namespace='business_entities')),
     path("vehicles/", include("vehicles.urls", namespace='vehicles')),
     path('banks/', include('banks.urls', namespace='banks')),

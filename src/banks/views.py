@@ -7,6 +7,8 @@ from business_entities.mixins import BusinessEntityMixin, SearchMixin
 from .forms import BankDetailForm, BankCreateForm, BankUpdateForm
 from .mixins import BankMixin
 from .models import Bank
+from .selectors import BankSelector
+from .services import BankService
 
 
 class BankSearchCreateFormView(BusinessEntityMixin, BankMixin, ListView):
@@ -16,7 +18,7 @@ class BankSearchCreateFormView(BusinessEntityMixin, BankMixin, ListView):
     paginate_by = 5
 
     def get_queryset(self):
-        return self.available_banks()
+        return BankSelector.available_banks()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -33,7 +35,7 @@ class BankSearchListView(BusinessEntityMixin, SearchMixin, BankMixin, ListView):
     paginate_by = 5
 
     def get_queryset(self):
-        queryset = self.available_banks()
+        queryset = BankSelector.available_banks()
         queryset = self.search_queryset(queryset)
         return queryset
 
@@ -45,60 +47,48 @@ class BankSearchListView(BusinessEntityMixin, SearchMixin, BankMixin, ListView):
 
 
 class AddBankToBusinessEntityView(BankMixin, BusinessEntityMixin, View):
-    template_name = 'banks/detail.html'
+    template_name = 'banks/_detail.html'
 
     def post(self, request, *args, **kwargs):
-        business_entity = self.business_entity
-        bank = self.bank
-
-        if business_entity.bank:
-            business_entity.bank = None
-
-        business_entity.bank = bank
-        business_entity.save()
+        bank_service = BankService(self.business_entity)
+        bank = bank_service.add_bank_to_business_entity(self.bank)
 
         context = {
             'bank_form': BankDetailForm(instance=bank),
-            'business_entity': business_entity,
+            'business_entity': self.business_entity,
         }
 
         return render(request, self.template_name, context)
 
 
 class BankDetailView(BusinessEntityMixin, TemplateView):
-    template_name = 'banks/detail.html'
+    template_name = 'banks/templates/banks/_detail.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        business_entity = self.business_entity
-        bank = business_entity.bank
-
-        bank_form = ''
-        if bank:
-            bank_form = BankDetailForm(instance=bank)
+        bank = self.business_entity.bank
+        bank_form = BankDetailForm(instance=bank) if bank else BankDetailForm()
 
         context['bank_form'] = bank_form
-        context['business_entity'] = business_entity
+        context['business_entity'] = self.business_entity
         return context
 
 
 class BankCreateView(BusinessEntityMixin, CreateView):
     model = Bank
     form_class = BankCreateForm
-    template_name = 'banks/create.html'
+    template_name = 'banks/_create.html'
 
     def form_valid(self, form):
-        bank = form.save()
-        business_entity = self.business_entity
-        business_entity.bank = bank
-        business_entity.save()
+        service = BankService(self.business_entity)
+        bank = service.create_bank(form.cleaned_data)
 
         context = {
             'bank_form': BankDetailForm(instance=bank),
-            'business_entity': business_entity,
+            'business_entity': self.business_entity,
         }
 
-        return render(self.request, 'banks/detail.html', context)
+        return render(self.request, 'banks/templates/banks/_detail.html', context)
 
     def form_invalid(self, form):
         context = {
@@ -124,15 +114,11 @@ class BankUpdateView(BusinessEntityMixin, UpdateView):
 
     def form_valid(self, form):
         bank = form.save()
-        business_entity = self.business_entity
-        business_entity.bank = bank
-        business_entity.save()
-
         context = {
             'bank_form': BankDetailForm(instance=bank),
-            'business_entity': business_entity,
+            'business_entity': self.business_entity,
         }
-        return render(self.request, 'banks/detail.html', context)
+        return render(self.request, 'banks/templates/banks/_detail.html', context)
 
     def form_invalid(self, form):
         context = {
@@ -149,16 +135,15 @@ class BankUpdateView(BusinessEntityMixin, UpdateView):
 
 
 class BankDeleteView(BusinessEntityMixin, View):
-    template_name = 'banks/detail.html'
+    template_name = 'banks/_detail.html'
 
-    def get(self, request, *args, **kwargs):
-        business_entity = self.business_entity
-        business_entity.bank = None
-        business_entity.save()
+    def post(self, request, *args, **kwargs):
+        service = BankService(self.business_entity)
+        service.remove_bank()
 
         context = {
             'bank_form': '',
-            'business_entity': business_entity,
+            'business_entity': self.business_entity,
         }
 
         return render(request, self.template_name, context)

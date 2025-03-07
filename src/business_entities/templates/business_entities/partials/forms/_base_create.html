@@ -1,5 +1,13 @@
-<form class="d-flex flex-column align-items-center" method="POST" id="createForm">
+<form
+        id="createForm"
+        class="d-flex flex-column align-items-center"
+        method="POST"
+        x-data="formData()"
+        @submit.prevent="validateForm()"
+>
     {% csrf_token %}
+
+    <hr/>
     {% block business_entity_type %}
     {% endblock %}
     <div id="BusinessEntitiesForm" class="mb-3" style="width: 350px;">

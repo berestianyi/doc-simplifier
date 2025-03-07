@@ -5,6 +5,8 @@ class PDFUploadForm(forms.Form):
     pdf_file = forms.FileField(
         widget=forms.ClearableFileInput(attrs={
             'class': 'form-control forms-control-lg',
-            'type': 'file',
-        })
+            'type': 'file'
+        }),
+        label='Завантажити файл з OpenDataBot'
     )
+

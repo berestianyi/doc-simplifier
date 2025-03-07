@@ -3,7 +3,7 @@
 {% block crud_buttons %}
     <div class="d-flex flex-row flex-wrap my-3">
         <button
-                type="submit"
+                type="button"
                 class="btn btn-secondary mx-3 my-1"
                 hx-get="{% url 'business_entities:detail' business_entity.id %}"
                 hx-target="#businessEntityForm"
@@ -17,7 +17,7 @@
                 class="btn btn-danger mx-3 my-1"
                 hx-post="{% url 'business_entities:delete' business_entity.id %}"
         >
-            Видалити ТЗ
+            Видалити СГ
         </button>
         <button
                 type="button"

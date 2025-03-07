@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.views.generic import ListView, CreateView, View, UpdateView, TemplateView
 
 from banks.forms import BankDetailForm
+from documents.forms import PDFUploadForm
 from documents.mixins import DocumentMixin
 from vehicles.mixins import VehicleMixin
 from .forms import FOPCreateForm, TOVCreateForm, FOPDetailForm, TOVDetailForm, TOVUpdateForm, \
@@ -53,10 +54,11 @@ class FOPCreateView(HtmxMixin, CreateView):
     form_class = FOPCreateForm
     template_name = 'business_entities/create.html'
     htmx_template_name = 'business_entities/partials/forms/_fop_create.html'
+    business_entity = BusinessEntitiesEnum.FOP
 
     def form_valid(self, form):
         business_entity = form.save(commit=False)
-        business_entity.business_entity = BusinessEntitiesEnum.FOP
+        business_entity.business_entity = self.business_entity
         business_entity.save()
         response = self.htmx_redirect('business_entities:detail', business_entity_id=business_entity.id)
         return response
@@ -68,29 +70,15 @@ class FOPCreateView(HtmxMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['business_entity_form'] = context.pop('form', None)
+        context['file_upload_form'] = PDFUploadForm()
         return context
 
 
-class TOVCreateView(HtmxMixin, CreateView):
+class TOVCreateView(FOPCreateView):
     model = BusinessEntities
     form_class = TOVCreateForm
     htmx_template_name = 'business_entities/partials/forms/_tov_create.html'
-
-    def form_valid(self, form):
-        business_entity = form.save(commit=False)
-        business_entity.business_entity = BusinessEntitiesEnum.TOV
-        business_entity.save()
-        response = self.htmx_redirect('business_entities:detail', business_entity_id=business_entity.id)
-        return response
-
-    def form_invalid(self, form):
-        context = self.get_context_data(business_entity_form=form)
-        return render(self.request, self.htmx_template_name, context)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['business_entity_form'] = context.pop('form', None)
-        return context
+    business_entity = BusinessEntitiesEnum.TOV
 
 
 class BusinessEntityDetailView(HtmxMixin, VehicleMixin, DocumentMixin, BusinessEntityMixin, TemplateView):
@@ -128,7 +116,7 @@ class BusinessEntityUpdateView(BusinessEntityMixin, HtmxMixin, UpdateView):
             'business_entity_form': updated_form,
             'business_entity': self.object,
         }
-        return render(self.request, self.template_name, context)
+        return render(self.request, "business_entities/partials/forms/_detail.html", context)
 
     def form_invalid(self, form):
         return render(self.request, self.template_name, {
@@ -144,7 +132,7 @@ class BusinessEntityUpdateView(BusinessEntityMixin, HtmxMixin, UpdateView):
         return context
 
 
-class BusinessEntityDeleteView(BusinessEntityMixin,HtmxMixin, View):
+class BusinessEntityDeleteView(BusinessEntityMixin, HtmxMixin, View):
 
     def post(self, request, *args, **kwargs):
         self.business_entity.delete()

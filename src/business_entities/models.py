@@ -16,12 +16,12 @@ class BusinessEntities(models.Model):
 
     )
     edrpou = models.CharField(_("Code EDRPOU"), max_length=10, blank=True, unique=True, null=True)
-    company_name = models.CharField(_("Company Name"), max_length=300, blank=True, null=True)
-    director_name = models.CharField(_("Director Name"), max_length=300, blank=True, null=True)
-    address = models.CharField(_("Address"), max_length=200, blank=True, null=True)
-    email = models.EmailField(_("Email"), blank=True, null=True)
-    phone = models.CharField(_("Phone"), max_length=200, blank=True, null=True)
-    iban = models.CharField(_("IBAN"), max_length=200, blank=True, null=True)
+    company_name = models.CharField(_("Company Name"), max_length=300, blank=True, default="")
+    director_name = models.CharField(_("Director Name"), max_length=300, blank=True, default="")
+    address = models.CharField(_("Address"), max_length=200, blank=True, default="")
+    email = models.EmailField(_("Email"), blank=True, default="")
+    phone = models.CharField(_("Phone"), max_length=200, blank=True, default="")
+    iban = models.CharField(_("IBAN"), max_length=200, blank=True, default="")
     updated_at = models.DateTimeField(_("Updated at"), auto_now=True)
     created_at = models.DateTimeField(_("Created at"), auto_now_add=True)
 

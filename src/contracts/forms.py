@@ -4,12 +4,12 @@ from datetime import date, timedelta
 from contracts.models import Contracts, Templates
 
 
-class ContractTimeRangeForm(forms.ModelForm):
+class RoyalForm(forms.ModelForm):
     tax_type = forms.ChoiceField(
         label="Тип оподаткування",
         choices=[
-            ('single_tax_5', 'Платник Єдиного податку 5% 3 група'),
-            ('vat', 'Платник ПДВ'),
+            ('single_tax_5', 'Платник Єдиного податку 5% 3 група\n'),
+            ('vat', 'Платник ПДВ\n'),
         ],
         widget=forms.Select(attrs={'class': 'form-control'}),
         required=True
@@ -17,7 +17,7 @@ class ContractTimeRangeForm(forms.ModelForm):
 
     class Meta:
         model = Contracts
-        fields = ['start_date', 'end_date']
+        fields = ['start_date', 'end_date', 'tax_type']
         labels = {
             'start_date': "Час початку договору",
             'end_date': "Час закінчення договору",
@@ -33,6 +33,29 @@ class ContractTimeRangeForm(forms.ModelForm):
         self.fields['end_date'].initial = (date.today() + timedelta(days=365)).isoformat()
 
 
+class RolandForm(RoyalForm):
+    doc_address = forms.ChoiceField(
+        label="Адреса в документі",
+        choices=[
+            ('tetiiv', 'Тетіїв'),
+            ('dariliv', 'Радивилів'),
+        ],
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        required=True
+    )
+
+    full_doc_address = forms.ChoiceField(
+        label="Повна адреса",
+        choices=[
+            ('tetiiv', '09800, Київська область, м. Тетіїв, вул. Богдана Хмельницького, 3.'),
+            ('dariliv', '35500, Рівненська обл., м. Радивилів, вул. О. Невського, 71Ж.'),
+        ],
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        required=True
+    )
+
+    class Meta(RoyalForm.Meta):
+        pass
 
 
 class TemplatesForm(forms.ModelForm):

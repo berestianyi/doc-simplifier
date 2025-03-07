@@ -31,26 +31,16 @@ SECRET_KEY = 'django-insecure--io1*$2_rb=$1_y_5@v6-s1=y!j811kij1wf*br50kybuqqmg3
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [
-    '0.0.0.0',
-    'localhost',
-    '127.0.0.1',
-    '192.168.0.226',
-    '192.168.0.34',
-    '6ecc-213-139-212-31.ngrok-free.app',
-    '213.139.212.31',
-    'ff23-213-139-212-31.ngrok-free.app',
-    '192.168.0.24',
-    '2665-213-139-212-31.ngrok-free.app'
-]
+ALLOWED_HOSTS = ['*']
 
 CSRF_TRUSTED_ORIGINS = [
     'https://ff23-213-139-212-31.ngrok-free.app',
-    'https://2665-213-139-212-31.ngrok-free.app'
+    'https://2665-213-139-212-31.ngrok-free.app',
+    'https://d450-213-139-212-31.ngrok-free.app'
 ]
 
 INSTALLED_APPS = [
-    # 'django.contrib.admin',
+    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',

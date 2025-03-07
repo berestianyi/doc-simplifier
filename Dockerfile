@@ -1,29 +1,16 @@
-FROM python:3.12-slim-bullseye
+FROM python:3.12-slim-bookworm
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-LABEL authors="ivan.berestianyi"
+ENV PORT=8080
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONPATH=/app/src
 
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
-ENV PYTHONPATH=/usr/src/app/src
+COPY . /app
 
-RUN apt-get update && apt-get install -y \
-    gcc \
-    libpq-dev \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
+WORKDIR /app
+RUN uv sync --frozen --no-cache
 
-RUN pip install --upgrade pip
-RUN pip install poetry
+CMD /app/.venv/bin/gunicorn config.wsgi:application --bind 0.0.0.0:"${PORT}"
+#CMD ["/app/.venv/bin/gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8080"]
 
-WORKDIR /usr/src/app
-COPY pyproject.toml poetry.lock ./
-RUN poetry config virtualenvs.create false && poetry install --no-root --no-dev
-
-COPY . .
-
-WORKDIR /usr/src/app/src
-
-
-EXPOSE 8000
-
-CMD ["poetry", "run", "python", "manage.py", "runserver", "0.0.0.0:8000"]
+EXPOSE "${PORT}"

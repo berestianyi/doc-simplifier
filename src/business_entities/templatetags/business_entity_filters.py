@@ -20,3 +20,13 @@ def make_full_name(company_name, edrpou):
     else:
         return company_name
 
+
+@register.filter(name="add_attrs")
+def add_attrs(field, attrs):
+    """
+    Adds attributes to a form field.
+    Usage: {{ field|add_attrs:"x-model:id_field_name" }}
+    """
+    attr_name, attr_value = attrs.split(":")
+    field.field.widget.attrs[attr_name] = attr_value
+    return field
