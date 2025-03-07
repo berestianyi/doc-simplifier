@@ -1,3 +1,5 @@
+import re
+from django.urls import reverse
 from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
@@ -9,13 +11,46 @@ def validate_edrpou(value):
         raise ValidationError(_('Це поле повинно містити лише цифри.'), code='invalid')
 
 
-class BusinessEntitiesCreateForm(forms.ModelForm):
+def validate_address(value: str):
+    address_components = value.replace("\n", " ").split(", ")
 
+    pattern = re.compile(
+        r"^(\d{5})|([А-ЯҐЄІЇ][а-яґєіїʼ\S-]+ обл\.)|(м\. [А-ЯІЇЄҐІЇ][а-яіїєґʼ\S-]+(?: [А-ЯІЇЄҐ][а-яіїєґʼ\S-]+)?)|(кімната [А-ЯІЇЄҐІЇ][а-яіїєґʼ\S-]+(?: [А-ЯІЇЄҐ][а-яіїєґʼ\S-]+)?)|([А-ЯҐЄІЇ][а-яґєіїʼ\S-]+ р-н)|проспект [А-ЯІЇЄҐ][а-яіїєґ]+(?: [А-ЯІЇЄҐ][а-яіїєґ]+)?|(с\. [А-ЯҐЄІЇ][а-яґєіїʼ\S\'-]+)|(смт\. [А-ЯҐЄІЇ][а-яґєіїʼ\S-]+)|(вул\. [А-ЯҐЄІЇ][а-яґєіїʼ\S-]+)|(буд\. \d+)|(кв\. \d+)|(офіс \d+)|(\d+)(,\s*)$")
+
+    for component in address_components:
+        if not bool(re.match(pattern, component)):
+            raise ValidationError(
+                'Невірний формат адреси. Приклад: 01030, Київська обл., м. Київ, вул. Леонтовича, буд. 7'
+            )
+
+
+def validate_phone(value):
+    if not re.fullmatch(
+            r'^\s*0\d{9}(?:,\s*0\d{9})*\s*$',
+            value
+    ):
+        raise ValidationError(
+            _('Невірний формат телефону. Приклад: 0991234567 або 0991234567,0679876543')
+        )
+
+
+def validate_iban(value):
+    if not re.fullmatch(
+            r'^UA\d{2}\d{6}\d{19}$',
+            value
+    ):
+        raise ValidationError(
+            _('Невірний формат IBAN. Приклад: UA903052992990004149123456789')
+        )
+
+
+class BusinessEntitiesForm(forms.ModelForm):
     address = forms.CharField(
         required=False,
         label='Адреса',
+        validators=[validate_address],
         widget=forms.Textarea(attrs={
-            'placeholder': 'Україна, вул. Хрещатик, 1',
+            'placeholder': '01030, м. Київ, вул. Леонтовича, офіс 7',
             'style': 'height: 40px; max-height: 120px;',
         })
     )
@@ -23,9 +58,27 @@ class BusinessEntitiesCreateForm(forms.ModelForm):
     phone = forms.CharField(
         required=False,
         label='Телефон',
+        validators=[validate_phone],
         widget=forms.Textarea(attrs={
-            'placeholder': '+3809901234567',
+            'placeholder': '09901234567',
             'style': 'height: 40px; max-height: 120px;',
+        })
+    )
+
+    email = forms.EmailField(
+        required=False,
+        label='Email',
+        widget=forms.EmailInput(attrs={
+            'placeholder': 'example@gmail.com',
+        })
+    )
+
+    iban = forms.CharField(
+        required=False,
+        label='IBAN',
+        validators=[validate_iban],
+        widget=forms.TextInput(attrs={
+            'placeholder': 'UAXXXXXXXXXXXXXXXXXXXXXXXXXXX'
         })
     )
 
@@ -37,18 +90,6 @@ class BusinessEntitiesCreateForm(forms.ModelForm):
             'email',
             'iban',
         ]
-        labels = {
-            'email': 'Email',
-            'iban': 'IBAN',
-        }
-        widgets = {
-            'email': forms.EmailInput(attrs={
-                'placeholder': 'example@gmail.com',
-            }),
-            'iban': forms.TextInput(attrs={
-                'placeholder': 'UAXXXXXXXXXXXXXXXXXXXXXXXXXXX',
-            }),
-        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -58,7 +99,7 @@ class BusinessEntitiesCreateForm(forms.ModelForm):
                 field.widget.attrs['class'] = 'form-control'
 
 
-class FOPCreateForm(BusinessEntitiesCreateForm):
+class FOPForm(BusinessEntitiesForm):
     edrpou = forms.CharField(
         required=False,
         label='ЄДРПОУ',
@@ -78,9 +119,9 @@ class FOPCreateForm(BusinessEntitiesCreateForm):
         })
     )
 
-    class Meta(BusinessEntitiesCreateForm.Meta):
+    class Meta(BusinessEntitiesForm.Meta):
         model = BusinessEntities
-        fields = ['edrpou', 'director_name'] + BusinessEntitiesCreateForm.Meta.fields
+        fields = ['edrpou', 'director_name'] + BusinessEntitiesForm.Meta.fields
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -90,13 +131,18 @@ class FOPCreateForm(BusinessEntitiesCreateForm):
                 field.widget.attrs['class'] = 'form-control'
 
 
-class FOPUpdateForm(FOPCreateForm):
-    class Meta(FOPCreateForm.Meta):
+class FOPCreateForm(FOPForm):
+    class Meta(FOPForm.Meta):
         pass
 
 
-class FOPDetailForm(FOPCreateForm):
-    class Meta(FOPCreateForm.Meta):
+class FOPUpdateForm(FOPForm):
+    class Meta(FOPForm.Meta):
+        pass
+
+
+class FOPDetailForm(FOPForm):
+    class Meta(FOPForm.Meta):
         pass
 
     def __init__(self, *args, **kwargs):
@@ -106,13 +152,7 @@ class FOPDetailForm(FOPCreateForm):
             field.widget.attrs['disabled'] = True
 
 
-class ContractFOPForm(FOPUpdateForm):
-    class Meta(FOPUpdateForm.Meta):
-        pass
-
-
-class TOVCreateForm(BusinessEntitiesCreateForm):
-
+class TOVForm(BusinessEntitiesForm):
     edrpou = forms.CharField(
         required=False,
         label='ЄДРПОУ',
@@ -140,9 +180,9 @@ class TOVCreateForm(BusinessEntitiesCreateForm):
         })
     )
 
-    class Meta(BusinessEntitiesCreateForm.Meta):
+    class Meta(BusinessEntitiesForm.Meta):
         model = BusinessEntities
-        fields = ['edrpou', 'director_name', 'company_name'] + BusinessEntitiesCreateForm.Meta.fields
+        fields = ['edrpou', 'director_name', 'company_name'] + BusinessEntitiesForm.Meta.fields
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -152,13 +192,18 @@ class TOVCreateForm(BusinessEntitiesCreateForm):
                 field.widget.attrs['class'] = 'form-control'
 
 
-class TOVUpdateForm(TOVCreateForm):
-    class Meta(TOVCreateForm.Meta):
+class TOVCreateForm(TOVForm):
+    class Meta(TOVForm.Meta):
         pass
 
 
-class TOVDetailForm(TOVCreateForm):
-    class Meta(TOVCreateForm.Meta):
+class TOVUpdateForm(TOVForm):
+    class Meta(TOVForm.Meta):
+        pass
+
+
+class TOVDetailForm(TOVForm):
+    class Meta(TOVForm.Meta):
         pass
 
     def __init__(self, *args, **kwargs):
@@ -166,8 +211,3 @@ class TOVDetailForm(TOVCreateForm):
 
         for field_name, field in self.fields.items():
             field.widget.attrs['disabled'] = True
-
-
-class ContractTOVForm(TOVUpdateForm):
-    class Meta(TOVUpdateForm.Meta):
-        pass
