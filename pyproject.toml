@@ -15,10 +15,7 @@ dependencies = [
     "pymorphy3-dicts-uk>=2.4.1.1.1663094765,<3",
     "pypdf2>=3.0.1,<4",
     "gunicorn>=23.0.0",
-    "pytesseract>=0.3.13",
-    "opencv-python>=4.11.0.86",
 ]
-
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
