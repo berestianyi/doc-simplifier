@@ -3,18 +3,20 @@ from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, View, CreateView, UpdateView
 
-from business_entities.mixins import SearchMixin
-from business_entities.views import BusinessEntityMixin
-from documents.mixins import DocumentMixin
-from documents.models import Documents
-from vehicles.mixins import VehicleMixin
+from src.business_entities.mixins import SearchMixin
+from src.business_entities.views import BusinessEntityMixin
+from src.documents.mixins import DocumentMixin
+from src.documents.models import Documents
+from src.vehicles.mixins import VehicleMixin
 from .forms import TemplatesForm, RoyalForm, RolandForm
 from .mixins import TemplateMixin
 from .models import Templates, Contracts, TemplateTypeEnum
-from .services.converters import DataConverter
-from .services.core import ContractService
-from .services.docx_editors import DocxEditor, RolandDocxEditor, RoyalDocxEditor
-from .services.formatters import RolandFormatter, RoyalFormatter
+from .services.application.use_cases.generate_contract import ContractService
+
+from .services.infrastructure.converters.general import DataConverter
+from .services.infrastructure.docx_editor.general import RoyalDocxEditor, RolandDocxEditor
+from .services.infrastructure.formatters.roland import RolandFormatter
+from .services.infrastructure.formatters.royal import RoyalFormatter
 
 
 class ContractTemplatesSearchFormView(BusinessEntityMixin, TemplateMixin, ListView):
@@ -140,14 +142,14 @@ class ContractCreateView(BusinessEntityMixin, VehicleMixin, TemplateMixin, Docum
             editor = RolandDocxEditor(self.template_obj.path.path)
 
         service = ContractService(converter=converter, formatter=formatter, editor=editor)
-        output, filename = service.generate(
+        output, filename = service.execute(
             form_dict=form_dict,
             start_date=form.cleaned_data['start_date'],
             end_date=form.cleaned_data['end_date'],
-            entity=self.business_entity,
-            template=self.template_obj,
+            entity_model=self.business_entity,
+            template_model=self.template_obj,
             contract_id=contract.id,
-            vehicles=[]
+            vehicle_entities=[]
         )
 
         Documents.objects.create(name=filename, path=output, contract=contract)
@@ -215,15 +217,16 @@ class ContractCrpeateView(BusinessEntityMixin, VehicleMixin, TemplateMixin, Docu
             editor=editor(self.template_obj.path.path)
         )
 
-        output, filename = service.generate(
+        output, filename = service.execute(
             form_dict=form_dict,
             start_date=form.cleaned_data['start_date'],
             end_date=form.cleaned_data['end_date'],
-            entity=self.business_entity,
-            template=self.template_obj,
+            entity_model=self.business_entity,
+            template_model=self.template_obj,
             contract_id=contract.id,
-            vehicles=vehicles
+            vehicle_entities=vehicles
         )
+
         Documents.objects.create(
             name=filename,
             path=output,

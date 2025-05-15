@@ -1,21 +1,6 @@
 from typing import TypedDict, Optional
 
 
-class DocumentInfo(TypedDict):
-    document_number: str
-
-
-class ContractDate(TypedDict):
-    day: str
-    month: str
-    year: str
-
-
-class ContractDateInfo(TypedDict):
-    start: ContractDate
-    end: ContractDate
-
-
 class BankAccountData(TypedDict):
     name: str
     mfo: str
@@ -56,9 +41,3 @@ class VehicleData(TypedDict):
     model: str
     number: str
     year: int
-
-
-class ContractData(TypedDict):
-    entity: BusinessEntityData
-    date: ContractDateInfo
-    document: DocumentInfo
