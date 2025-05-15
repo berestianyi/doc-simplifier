@@ -15,6 +15,9 @@ dependencies = [
     "pymorphy3-dicts-uk>=2.4.1.1.1663094765,<3",
     "pypdf2>=3.0.1,<4",
     "gunicorn>=23.0.0",
+    "celery>=5.5.0",
+    "redis>=5.2.1",
+    "flower>=2.0.1",
 ]
 [build-system]
 requires = ["hatchling"]

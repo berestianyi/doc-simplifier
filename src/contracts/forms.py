@@ -1,7 +1,7 @@
 from django import forms
 from datetime import date, timedelta
 
-from contracts.models import Contracts, Templates
+from src.contracts.models import Contracts, Templates
 
 
 class RoyalForm(forms.ModelForm):

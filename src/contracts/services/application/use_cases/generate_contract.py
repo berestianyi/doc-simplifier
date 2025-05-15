@@ -1,39 +1,39 @@
 from typing import List
 
-from business_entities.models import BusinessEntities
-
-from contracts.models import Templates
-from contracts.services.dto import VehicleData
-from contracts.services.interfaces import Converter, Formatter, DocumentEditor
+from src.business_entities.models import BusinessEntities
+from src.contracts.models import Templates
+from src.contracts.services.domain.entities.business_entity import VehicleData
+from src.contracts.services.domain.infrastructure import ConverterInterface, DocumentEditorInterface, FormatterInterface
 
 
 class ContractService:
     def __init__(
             self,
-            converter: Converter,
-            formatter: Formatter,
-            editor: DocumentEditor
+            converter: ConverterInterface,
+            formatter: FormatterInterface,
+            editor: DocumentEditorInterface
     ):
         self.converter = converter
         self.formatter = formatter
         self.editor = editor
 
-    def generate(
+    def execute(
             self,
             form_dict,
             start_date,
             end_date,
-            entity: BusinessEntities,
-            vehicles: List[VehicleData],
-            template: Templates,
+            entity_model: BusinessEntities,
+            vehicle_entities: List[VehicleData],
+            template_model: Templates,
             contract_id: int
     ) -> tuple[str, str]:
 
         document_data = self.converter.convert(
-            entity,
+            entity_model,
             start_date,
             end_date
         )
+
         formatted_entity = self.formatter.format_entity_data(document_data['entity'])
 
         flattened_entity_data = self.formatter.flatten_dict(formatted_entity)
@@ -47,10 +47,10 @@ class ContractService:
         }
         print(replacements)
         self.editor.replace_text(replacements)
-        if vehicles:
-            self.editor.add_table(vehicles)
+        if vehicle_entities:
+            self.editor.add_table(vehicle_entities)
 
-        filename = f"{template.name}_{entity.company_name or entity.director_name}_{contract_id}.docx"
+        filename = f"{template_model.name}_{entity_model.company_name or entity_model.director_name}_{contract_id}.docx"
         output = self.editor.save(filename)
 
         return output, filename

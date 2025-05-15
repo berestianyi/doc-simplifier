@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404
 from django.utils.functional import cached_property
 
-from business_entities.models import BusinessEntitiesEnum
+from src.business_entities.models import BusinessEntitiesEnum
 from .models import Templates
 
 

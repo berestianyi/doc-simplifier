@@ -2,16 +2,17 @@ import os
 import re
 from typing import List, Dict
 
-from config import settings
+from src.config import settings
 
 from docx import Document
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 from python_docx_replace import docx_replace
 
-from contracts.services.dto import VehicleData
+from src.contracts.services.domain.entities.business_entity import VehicleData
+from src.contracts.services.domain.infrastructure import DocumentEditorInterface
 
 
-class DocxEditor:
+class DocxEditor(DocumentEditorInterface):
     font_cache = None
     vehicle_table_index = None
 

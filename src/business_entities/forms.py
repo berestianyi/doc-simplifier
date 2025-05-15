@@ -14,24 +14,46 @@ def validate_edrpou(value):
 def validate_address(value: str):
     address_components = value.replace("\n", " ").split(", ")
 
-    pattern = re.compile(
-        r"^(\d{5})|([А-ЯҐЄІЇ][а-яґєіїʼ\S-]+ обл\.)|(м\. [А-ЯІЇЄҐІЇ][а-яіїєґʼ\S-]+(?: [А-ЯІЇЄҐ][а-яіїєґʼ\S-]+)?)|(кімната [А-ЯІЇЄҐІЇ][а-яіїєґʼ\S-]+(?: [А-ЯІЇЄҐ][а-яіїєґʼ\S-]+)?)|([А-ЯҐЄІЇ][а-яґєіїʼ\S-]+ р-н)|проспект [А-ЯІЇЄҐ][а-яіїєґ]+(?: [А-ЯІЇЄҐ][а-яіїєґ]+)?|(с\. [А-ЯҐЄІЇ][а-яґєіїʼ\S\'-]+)|(смт\. [А-ЯҐЄІЇ][а-яґєіїʼ\S-]+)|(вул\. [А-ЯҐЄІЇ][а-яґєіїʼ\S-]+)|(буд\. \d+)|(кв\. \d+)|(офіс \d+)|(\d+)(,\s*)$")
+    patterns_to_compile = [
+        r"\d{5}",
+        r"[А-ЯҐЄІЇ][а-яґєіїʼ\S-]+ обл\.",
+        r"м\. [А-ЯІЇЄҐІЇ][а-яіїєґʼ\S-]+(?: [А-ЯІЇЄҐ][а-яіїєґʼ\S-]+)?",
+        r"кімната [А-ЯІЇЄҐІЇ][а-яіїєґʼ\S-]+(?: [А-ЯІЇЄҐ][а-яіїєґʼ\S-]+)?",
+        r"[А-ЯҐЄІЇ][а-яґєіїʼ\S-]+ р-н",
+        r"проспект [А-ЯІЇЄҐ][а-яіїєґ]+(?: [А-ЯІЇЄҐ][а-яіїєґ]+)?",
+        r"с\. [А-ЯҐЄІЇ][а-яґєіїʼ\S\'-]+",
+        r"смт\. [А-ЯҐЄІЇ][а-яґєіїʼ\S-]+",
+        r"вул\. [А-ЯҐЄІЇ][а-яґєіїʼ\S-]+",
+        r"буд\. \d+",
+        r"кв\. \d+",
+        r"офіс \d+",
+        r"\d+",
+    ]
+
+    combined_pattern = re.compile(r"^(" + "|".join(patterns_to_compile) + r")$")
 
     for component in address_components:
-        if not bool(re.match(pattern, component)):
+        if not combined_pattern.match(component):
             raise ValidationError(
-                'Невірний формат адреси. Приклад: 01030, Київська обл., м. Київ, вул. Леонтовича, буд. 7'
+                _('Невірний формат адреси. Приклад: 01030, Київська обл., м. Київ, вул. Леонтовича, буд. 7')
             )
 
 
 def validate_phone(value):
-    if not re.fullmatch(
-            r'^\s*0\d{9}(?:,\s*0\d{9})*\s*$',
-            value
-    ):
-        raise ValidationError(
-            _('Невірний формат телефону. Приклад: 0991234567 або 0991234567,0679876543')
-        )
+    phone_components = value.replace("\n", " ").split(", ")
+
+    phone_patterns = [
+        r"0\d{9}",
+    ]
+
+    combined_pattern = re.compile(r"^(" + "|".join(phone_patterns) + r")$")
+
+    for phone in phone_components:
+        phone = phone.strip()
+        if not combined_pattern.match(phone):
+            raise ValidationError(
+                _('Невірний формат телефону. Приклад: 0991234567 або 0991234567,0679876543')
+            )
 
 
 def validate_iban(value):

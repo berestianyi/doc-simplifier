@@ -12,17 +12,16 @@ LOGOUT_REDIRECT_URL = 'users:login'
 
 SECRET_KEY = get_secret('SECRET_KEY')
 
+CELERY_BROKER_URL = get_secret("CELERY_BROKER_URL")
+CELERY_RESULT_BACKEND = get_secret("CELERY_RESULT_BACKEND")
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 CSRF_TRUSTED_ORIGINS = [
-    "http://0.0.0.0:8000",
-    "https://0.0.0.0:8000",
-    "http://localhost:8000",
-    "https://localhost:8000",
     "http://0.0.0.0:8001",
-    "https://0.0.0.0:8001"
+    "http://localhost:8001",
 ]
 
 INSTALLED_APPS = [

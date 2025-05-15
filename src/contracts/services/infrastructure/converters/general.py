@@ -1,12 +1,13 @@
 import pymorphy3
 
-from business_entities.models import BusinessEntities
-from contracts.services.dto import ContractData
+from src.business_entities.models import BusinessEntities
+from src.contracts.services.domain.entities.contract import ContractData
+from src.contracts.services.domain.infrastructure import ConverterInterface
 
 morph = pymorphy3.MorphAnalyzer(lang='uk')
 
 
-class DataConverter:
+class DataConverter(ConverterInterface):
     MONTH_NAMES_UA = {
         1: "січня",
         2: "лютого",

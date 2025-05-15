@@ -3,7 +3,7 @@ from datetime import date
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from business_entities.models import BusinessEntitiesEnum
+from src.business_entities.models import BusinessEntitiesEnum
 
 
 class Contracts(models.Model):
