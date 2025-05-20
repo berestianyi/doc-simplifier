@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views.generic import ListView, View, CreateView, TemplateView, UpdateView
 
-from business_entities.mixins import HtmxMixin, SearchMixin, SortOrderMixin, BusinessEntityMixin
+from src.business_entities.mixins import HtmxMixin, SearchMixin, SortOrderMixin, BusinessEntityMixin
 from .forms import (
     VehiclesCreateForm,
     VehiclesUpdateForm,

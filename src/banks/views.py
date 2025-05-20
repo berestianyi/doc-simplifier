@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.views import View
 from django.views.generic import ListView, CreateView, TemplateView, UpdateView
 
-from business_entities.mixins import BusinessEntityMixin, SearchMixin
+from src.business_entities.mixins import BusinessEntityMixin, SearchMixin
 
 from .forms import BankDetailForm, BankCreateForm, BankUpdateForm
 from .mixins import BankMixin
@@ -67,9 +67,8 @@ class BankDetailView(BusinessEntityMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         bank = self.business_entity.bank
-        bank_form = BankDetailForm(instance=bank) if bank else BankDetailForm()
-
-        context['bank_form'] = bank_form
+        if bank:
+            context['bank_form'] = BankDetailForm(instance=bank)
         context['business_entity'] = self.business_entity
         return context
 

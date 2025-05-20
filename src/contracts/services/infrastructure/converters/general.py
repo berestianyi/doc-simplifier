@@ -69,7 +69,7 @@ class DataConverter(ConverterInterface):
     def _get_document_number(self, start_date, expire_date) -> str:
         return f"{expire_date.day:02d}/{start_date.month}"
 
-    def convert(self, entity: BusinessEntities, start_date, expire_date) -> ContractData:
+    def execute(self, entity: BusinessEntities, start_date, expire_date) -> ContractData:
         return {
             "entity": {
                 "company": {
@@ -101,7 +101,7 @@ class DataConverter(ConverterInterface):
                     }
                 },
                 "pronouns": {
-                    "pronoun": self._to_genitive(entity.director_name).title(),
+                    "pronoun": self._to_genitive(entity.director_name).upper(),
                     "genitive": self._guess_gender_pronoun(entity.director_name),
                 },
                 "address": entity.address,

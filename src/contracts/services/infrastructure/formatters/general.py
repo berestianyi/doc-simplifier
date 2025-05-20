@@ -1,6 +1,9 @@
 import re
+from typing import List
 
+from src.contracts.services.domain.entities.business_entity import VehicleData
 from src.contracts.services.domain.infrastructure import FormatterInterface
+from src.vehicles.models import Vehicles
 
 
 class GeneralFormatter(FormatterInterface):
@@ -54,3 +57,40 @@ class GeneralFormatter(FormatterInterface):
             else:
                 items.append((new_key, v))
         return dict(items)
+
+    def format_vehicles_data(self, vehicles: List[Vehicles]) -> List[VehicleData]:
+        vehicles_data_list = []
+        for vehicle in vehicles:
+            vehicle_data = VehicleData(
+                brand=vehicle.brand,
+                model=str(vehicle.model),
+                number=vehicle.number,
+                year=int(vehicle.year),
+            )
+            vehicles_data_list.append(vehicle_data)
+
+        return vehicles_data_list
+
+
+    def execute(self, converted_document_data: dict, form):
+
+        form_dict = {
+            field: dict(form.fields[field].choices).get(value, value)
+            for field, value in form.cleaned_data.items()
+            if field in form.fields and hasattr(form.fields[field], "choices")
+        }
+
+        formatted_entity = self.format_entity_data(converted_document_data['entity'])
+
+        flattened_entity_data = self.flatten_dict(formatted_entity)
+        flattened_date_data = self.flatten_dict(converted_document_data['date'])
+        flattened_document_data = self.flatten_dict(converted_document_data['document'])
+        replacements = {
+            **form_dict,
+            **flattened_entity_data,
+            **flattened_date_data,
+            **flattened_document_data
+        }
+
+        return replacements
+

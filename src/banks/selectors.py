@@ -2,7 +2,7 @@ from typing import List
 
 from django.db.models import Count
 
-from banks.models import Bank
+from .models import Bank
 
 
 class BankSelector:

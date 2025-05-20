@@ -1,6 +1,6 @@
 from django.urls import path
 
-from documents import views
+from . import views
 
 app_name = 'documents'
 

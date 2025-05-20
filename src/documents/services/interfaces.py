@@ -1,6 +1,6 @@
 from typing import Protocol
 
-from documents.services.dto import BusinessEntityDTO
+from src.documents.services.dto import BusinessEntityDTO
 
 
 class Formatter(Protocol):

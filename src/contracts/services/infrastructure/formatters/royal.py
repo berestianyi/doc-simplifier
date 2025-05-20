@@ -24,7 +24,7 @@ class RoyalFormatter(GeneralFormatter):
         return f"38 ({phone[:3]}) {phone[3:6]} {phone[6:8]} {phone[8:]}"
 
     def _format_bank_data(self, bank: BankAccountData) -> BankAccountData:
-        name = self._replace_non_empty_string(bank.get('name'), f"в{bank.get('name')}\n")
+        name = self._replace_non_empty_string(bank.get('name'), f"в {bank.get('name')}\n")
         mfo = self._replace_non_empty_string(bank.get('mfo'), f" МФО {bank.get('mfo')}\n")
         iban = self._replace_non_empty_string(bank.get('iban'), f"IBAN {bank.get('iban')}\n")
 

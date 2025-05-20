@@ -11,10 +11,11 @@ from src.vehicles.mixins import VehicleMixin
 from .forms import TemplatesForm, RoyalForm, RolandForm
 from .mixins import TemplateMixin
 from .models import Templates, Contracts, TemplateTypeEnum
-from .services.application.use_cases.generate_contract import ContractService
+from .services.application.use_cases.generate_contract import GenerateContract
 
 from .services.infrastructure.converters.general import DataConverter
-from .services.infrastructure.docx_editor.general import RoyalDocxEditor, RolandDocxEditor
+from .services.infrastructure.docx_editor.roland import RolandDocxEditor
+from .services.infrastructure.docx_editor.royal import RoyalDocxEditor
 from .services.infrastructure.formatters.roland import RolandFormatter
 from .services.infrastructure.formatters.royal import RoyalFormatter
 
@@ -120,18 +121,6 @@ class ContractCreateView(BusinessEntityMixin, VehicleMixin, TemplateMixin, Docum
         return self.form_invalid(form)
 
     def form_valid(self, form):
-        contract = Contracts.objects.create(
-            business_entities=self.business_entity,
-            template=self.template_obj,
-            start_date=form.cleaned_data['start_date'],
-            end_date=form.cleaned_data['end_date'],
-        )
-
-        form_dict = {
-            field: dict(form.fields[field].choices).get(value, value)
-            for field, value in form.cleaned_data.items()
-            if field in form.fields and hasattr(form.fields[field], "choices")
-        }
 
         converter = DataConverter()
         if self.template_obj.template_type == TemplateTypeEnum.ROYAL:
@@ -141,18 +130,13 @@ class ContractCreateView(BusinessEntityMixin, VehicleMixin, TemplateMixin, Docum
             formatter = RolandFormatter()
             editor = RolandDocxEditor(self.template_obj.path.path)
 
-        service = ContractService(converter=converter, formatter=formatter, editor=editor)
-        output, filename = service.execute(
-            form_dict=form_dict,
-            start_date=form.cleaned_data['start_date'],
-            end_date=form.cleaned_data['end_date'],
-            entity_model=self.business_entity,
-            template_model=self.template_obj,
-            contract_id=contract.id,
-            vehicle_entities=[]
+        generate_contract = GenerateContract(converter=converter, formatter=formatter, editor=editor)
+        generate_contract.execute(
+            form=form,
+            contract_business_entity=self.business_entity,
+            contract_vehicle_entities=self.vehicles_with_business_entity(self.business_entity),
+            contract_template=self.template_obj,
         )
-
-        Documents.objects.create(name=filename, path=output, contract=contract)
 
         context = self.get_context_data(form)
 
@@ -160,91 +144,6 @@ class ContractCreateView(BusinessEntityMixin, VehicleMixin, TemplateMixin, Docum
 
     def form_invalid(self, form):
         context = self.get_context_data(form)
-        return render(self.request, self.template_name, context)
-
-
-class ContractCrpeateView(BusinessEntityMixin, VehicleMixin, TemplateMixin, DocumentMixin, CreateView):
-    template_name = "contracts/partials/forms/_create.html"
-    model = Contracts
-    fields = '__all__'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        if self.template_obj.template_type == TemplateTypeEnum.ROYAL:
-            self.form_class = RoyalForm
-        else:
-            self.form_class = RolandForm
-        context['time_range_form'] = self.form_class
-        context['business_entity'] = self.business_entity
-        context['template'] = self.template_obj
-        return context
-
-    def form_valid(self, form, *args, **kwargs):
-        contract = form.save(commit=False)
-        contract.business_entities = self.business_entity
-        contract.template = self.template_obj
-        contract.save()
-
-        vehicles = []
-        vehicles_with_entities = self.vehicles_with_business_entity(business_entity=self.business_entity)
-        if vehicles_with_entities:
-            for vehicle in vehicles_with_entities:
-                vehicles.append(model_to_dict(vehicle))
-
-        if self.template_obj.template_type == TemplateTypeEnum.ROYAL:
-            self.form_class = RoyalForm
-            converter = DataConverter
-            formatter = RoyalFormatter
-            editor = RoyalDocxEditor
-        else:
-            self.form_class = RolandForm
-            converter = DataConverter
-            formatter = RolandFormatter
-            editor = RolandDocxEditor
-
-        form_dict = {
-            field: dict(form.fields[field].choices).get(value, value)
-            for field, value in form.cleaned_data.items()
-            if field in form.fields and hasattr(form.fields[field], "choices")
-        }
-        print(form_dict)
-        print(form.cleaned_data)
-        print(self.form_class)
-
-        service = ContractService(
-            converter=converter(),
-            formatter=formatter(),
-            editor=editor(self.template_obj.path.path)
-        )
-
-        output, filename = service.execute(
-            form_dict=form_dict,
-            start_date=form.cleaned_data['start_date'],
-            end_date=form.cleaned_data['end_date'],
-            entity_model=self.business_entity,
-            template_model=self.template_obj,
-            contract_id=contract.id,
-            vehicle_entities=vehicles
-        )
-
-        Documents.objects.create(
-            name=filename,
-            path=output,
-            contract=contract
-        )
-
-        documents = self.business_entities_documents(business_entity=self.business_entity)
-
-        context = {
-            "time_range_form": form,
-            "business_entity": self.business_entity,
-            "template": self.template_obj,
-            "documents": documents,
-        }
-        return render(self.request, "documents/detail_list.html", context)
-
-    def form_invalid(self, form, *args, **kwargs):
-        context = self.get_context_data(**kwargs)
         return render(self.request, self.template_name, context)
 
 

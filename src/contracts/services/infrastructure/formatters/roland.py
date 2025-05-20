@@ -1,5 +1,8 @@
-from src.contracts.services.domain.entities.business_entity import BankAccountData, BusinessEntityData
+from typing import List
+
+from src.contracts.services.domain.entities.business_entity import BankAccountData, BusinessEntityData, VehicleData
 from src.contracts.services.infrastructure.formatters.general import GeneralFormatter
+from src.vehicles.models import Vehicles
 
 
 class RolandFormatter(GeneralFormatter):
@@ -33,7 +36,7 @@ class RolandFormatter(GeneralFormatter):
             iban=iban
         )
 
-    def format_entity_data(self, entity: BusinessEntityData) -> BusinessEntityData:
+    def format_entity_data(self, entity: BusinessEntityData) -> BusinessEntityData | dict:
         address = ''
         if self._is_non_empty_string(entity.get('address')):
             address_components = self._replace_address_components(entity.get('address'))

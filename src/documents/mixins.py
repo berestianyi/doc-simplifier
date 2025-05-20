@@ -4,7 +4,7 @@ from django.http import Http404, FileResponse
 from django.shortcuts import get_object_or_404
 from django.utils.functional import cached_property
 
-from business_entities.models import BusinessEntities
+from src.business_entities.models import BusinessEntities
 from .models import Documents
 
 
