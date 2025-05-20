@@ -1,5 +1,5 @@
 from django.urls import path
-from contracts import views
+from src.contracts import views
 
 app_name = 'templates'
 

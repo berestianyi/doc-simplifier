@@ -1,8 +1,8 @@
 import logging
 
-from documents.services.dto import BusinessEntityDTO
-from documents.services.formatters import BusinessEntityDataFormatter
-from documents.services.text_extraction import OpenDataBotTextExtraction
+from src.documents.services.dto import BusinessEntityDTO
+from src.documents.services.formatters import BusinessEntityDataFormatter
+from src.documents.services.text_extraction import OpenDataBotTextExtraction
 
 
 class DocumentService:

@@ -1,12 +1,11 @@
 from django.shortcuts import render
 from django.views.generic import ListView, CreateView, View, UpdateView, TemplateView
 
-from banks.forms import BankDetailForm
-from documents.forms import PDFUploadForm
-from documents.mixins import DocumentMixin
-from vehicles.mixins import VehicleMixin
-from .forms import FOPCreateForm, TOVCreateForm, FOPDetailForm, TOVDetailForm, TOVUpdateForm, \
-    FOPUpdateForm
+from src.banks.forms import BankDetailForm
+from src.documents.forms import PDFUploadForm
+from src.documents.mixins import DocumentMixin
+from src.vehicles.mixins import VehicleMixin
+from .forms import FOPCreateForm, TOVCreateForm, TOVUpdateForm, FOPUpdateForm
 from .mixins import HtmxMixin, SortOrderMixin, SearchMixin, BusinessEntityMixin
 from .models import BusinessEntities, BusinessEntitiesEnum
 

@@ -31,12 +31,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'users.apps.UsersConfig',
-    'business_entities.apps.BusinessEntitiesConfig',
-    'contracts.apps.ContractsConfig',
-    'vehicles.apps.VehiclesConfig',
-    'banks.apps.BanksConfig',
-    'documents.apps.DocumentsConfig',
+    'src.users',
+    'src.business_entities',
+    'src.contracts',
+    'src.vehicles',
+    'src.banks',
+    'src.documents',
 ]
 
 MIDDLEWARE = [

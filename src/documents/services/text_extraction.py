@@ -2,7 +2,7 @@ import PyPDF2
 import logging
 import re
 
-from documents.services.dto import BusinessEntityDTO
+from src.documents.services.dto import BusinessEntityDTO
 
 
 class OpenDataBotTextExtraction:

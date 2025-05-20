@@ -44,16 +44,16 @@ class DocxEditor(DocumentEditorInterface):
                         font = run.font
                         font.name = self.font_cache
 
-    def replace_text(self, replacements: Dict[str, str]):
+    def _replace_text(self, replacements: Dict[str, str]):
         docx_replace(self.doc, **replacements)
 
-    def add_table(self, data: List[VehicleData]):
+    def _add_table(self, data: List[VehicleData]):
         table = self.doc.tables[self.vehicle_table_index]
         for idx, vehicle in enumerate(data, start=1):
             self._add_vehicle_row(table, idx, vehicle)
         self._apply_table_styles(table)
 
-    def save(self, filename: str) -> str:
+    def _save(self, filename: str) -> str:
         output_path = os.path.join(settings.MEDIA_ROOT, "documents", self._sanitize_filename(filename))
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
         self.doc.save(output_path)
@@ -63,12 +63,12 @@ class DocxEditor(DocumentEditorInterface):
     def _sanitize_filename(filename: str) -> str:
         return re.sub(r'[<>:"/\\|?*]', '_', filename).strip()
 
+    def execute(self, replacements, vehicle_entities: List[VehicleData], filename) -> str:
+        print(replacements)
+        self._replace_text(replacements)
+        if vehicle_entities:
+            self._add_table(vehicle_entities)
 
-class RoyalDocxEditor(DocxEditor):
-    font_cache = 'Times New Roman'
-    vehicle_table_index = 1
+        output = self._save(filename)
 
-
-class RolandDocxEditor(DocxEditor):
-    font_cache = 'Arial'
-    vehicle_table_index = 0
+        return output

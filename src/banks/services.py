@@ -1,4 +1,4 @@
-from business_entities.models import BusinessEntities
+from src.business_entities.models import BusinessEntities
 from .models import Bank
 
 

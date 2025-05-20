@@ -2,7 +2,7 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from django.views import View
 
-from business_entities.forms import FOPCreateForm, TOVCreateForm
+from src.business_entities.forms import FOPCreateForm, TOVCreateForm
 from .forms import PDFUploadForm
 from .mixins import DocumentMixin
 from .models import Documents
