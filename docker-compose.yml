@@ -5,14 +5,13 @@ services:
     image: postgres:17.4-alpine3.21
     restart: always
     volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5433:5432"
     env_file:
       - ./.env
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres -d doc_simplifier" ]
+      test: [ "CMD-SHELL", "pg_isready" ]
       interval: 5s
       timeout: 5s
       retries: 10

@@ -15,20 +15,15 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 RUN apk add --no-cache postgresql-client
 # Then, add the rest of the project source code and install it
 # Installing separately from its dependencies allows optimal layer caching
-ADD . /app
+COPY ../.. /app
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev
 
 # Place executables in the environment at the front of the path
 ENV PATH="/app/.venv/bin:$PATH"
-ENV PYTHONPATH=/app/src:$PYTHONPATH
+ENV PYTHONPATH="/app/src:$PYTHONPATH"
 # Reset the entrypoint, don't invoke `uv`
 ENTRYPOINT []
-
-WORKDIR /app
-
-#
-#RUN chmod +x  /app/entrypoint.local.sh
 
 RUN ["chmod", "+x", "/app/entrypoint.local.sh"]
 
@@ -36,6 +31,3 @@ CMD ["/app/entrypoint.local.sh"]
 
 EXPOSE 8000
 
-#CMD ["uv", "run", "gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:${PORT}"]
-#
-#EXPOSE 8000
